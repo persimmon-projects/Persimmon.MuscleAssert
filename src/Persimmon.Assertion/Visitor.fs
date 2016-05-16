@@ -15,9 +15,11 @@ type internal AssertionVisitor(working: obj, base_: obj) =
   | Ignored -> []
   | Changed ->
     [
-      node.Path.ToString()
-      String.indent 1 "- " + String.toSingleLineString base_
-      String.indent 1 "+ " + String.toSingleLineString modified
+      yield node.Path.ToString()
+      if base_ <> null then
+        yield String.indent 1 "- " + String.toSingleLineString base_
+      if modified <> null then
+        yield String.indent 1 "+ " + String.toSingleLineString modified
     ]
   | Added ->
     [
