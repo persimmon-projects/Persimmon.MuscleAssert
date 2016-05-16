@@ -15,7 +15,13 @@ let equals (a: 'T) (b: 'T) =
     |> String.concat Environment.NewLine
     |> fail
   else
-    let node = ObjectDifferBuilder.BuildDefault().Compare(b, a)
+    let node =
+      ObjectDifferBuilder.StartBuilding()
+        .Comparison.OfPrimitiveTyoes()
+        .ToTreatDefaultValuesAs(Assigned)
+        .And()
+        .Build()
+        .Compare(b, a)
     let visitor = AssertionVisitor(b, a)
     node.Visit(visitor)
     fail visitor.Diff
