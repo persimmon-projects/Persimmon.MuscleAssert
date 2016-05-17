@@ -9,7 +9,7 @@ let equals (a: 'T) (b: 'T) =
   else
     let node =
       ObjectDifferBuilder.StartBuilding()
-        .Comparison.OfPrimitiveTyoes()
+        .Comparison.OfPrimitiveTypes()
         .ToTreatDefaultValuesAs(Assigned)
         .And()
         .Build()
