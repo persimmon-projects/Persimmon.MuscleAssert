@@ -5,6 +5,7 @@ open System.Collections
 open System.Collections.Generic
 open FSharp.Reflection
 open FSharp.Object.Diff
+open FSharp.Object.Diff.Dictionary
 
 type private IndexedEnumerator = {
   Index: int
@@ -152,6 +153,7 @@ type internal AssertionVisitor(working: obj, base_: obj) =
     let ds =
       if not <| node.IsRootNode then
         match node.ParentNode.CanonicalGet(base_) with
+        | Dictionary _ -> ()
         | :? IEnumerable as b when not <| hits.ContainsKey(node) ->
           match node.ParentNode.CanonicalGet(modified) with
           | :? IEnumerable as m ->
