@@ -13,6 +13,7 @@ type TestDU =
   | B of int
   | C of int * int
   | D of value : string
+  | E of string
 
 let ``dump diff primitive value`` = test {
   let expected =
@@ -83,10 +84,11 @@ let ``dump diff list`` = parameterize {
 
 let ``dump diff DU`` = parameterize {
   source [
-    (A, B 0, ["/Tag"; "  - 0"; "  + 1"; "/IsA"; "  - True"; "  + False"; "/IsB"; "  - False"; "  + True"])
+    (A, B 0, ["/"; "  - TestDU.A"; "  + TestDU.B"])
     (B 0, B 1, ["/Item"; "  - 0"; "  + 1"])
     (C(0, 1), C(0, 2), ["/Item2"; "  - 1"; "  + 2"])
     (D "a", D "b", ["/value"; "  - a"; "  + b"])
+    (B 0, E "a", ["/"; "  - TestDU.B"; "  + TestDU.E"])
   ]
   run (fun (expected, actual, msg) -> test {
     let msg =
