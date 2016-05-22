@@ -6,15 +6,15 @@ open Persimmon
 open UseTestNameByReflection
 
 type TestRecord = {
-  A: string
+  A: int
 }
 
 type TestDU =
   | A
   | B of int
   | C of int * int
-  | D of value : string
-  | E of string
+  | D of value : int
+  | E of int
 
 let ``dump diff primitive value`` = test {
   let expected =
@@ -32,20 +32,24 @@ let ``dump diff primitive value`` = test {
     |> assertEquals expected
 }
 
-let ``dump diff string`` = test {
-  let expected =
-    let violated =
-      [
-        "/"
-        "  - a"
-        "  + b"
-      ]
-      |> String.concat Environment.NewLine
-      |> Violated
-    NotPassed(violated)
-  do!
-    Assert.equals "a" "b"
-    |> assertEquals expected
+let ``dump diff string`` = parameterize {
+  source [
+    ("", "a", ["/[0]"; "  + a"])
+    ("a", "b", ["/[0]"; "  + b"; "/[0]"; "  - a"])
+    ("", "aa", ["/[0]"; "  + a"])
+    //("aaa", "aba", ["/[1]"; "  + b"; "/[1]"; "  - a"])
+  ]
+  run (fun (expected, actual, msg) -> test {
+    let msg =
+      let violated =
+        msg
+        |> String.concat Environment.NewLine
+        |> Violated
+      NotPassed(violated)
+    do!
+      Assert.equals expected actual
+      |> assertEquals msg
+  })
 }
 
 let ``dump diff record value`` = test {
@@ -53,14 +57,14 @@ let ``dump diff record value`` = test {
     let violated =
       [
         "/A"
-        "  - a"
-        "  + b"
+        "  - 0"
+        "  + 1"
       ]
       |> String.concat Environment.NewLine
       |> Violated
     NotPassed(violated)
   do!
-    Assert.equals { A = "a" } { A = "b" }
+    Assert.equals { A = 0 } { A = 1 }
     |> assertEquals expected
 }
 
@@ -88,8 +92,8 @@ let ``dump diff DU`` = parameterize {
     (A, B 0, ["/"; "  - TestDU.A"; "  + TestDU.B"])
     (B 0, B 1, ["/Item"; "  - 0"; "  + 1"])
     (C(0, 1), C(0, 2), ["/Item2"; "  - 1"; "  + 2"])
-    (D "a", D "b", ["/value"; "  - a"; "  + b"])
-    (B 0, E "a", ["/"; "  - TestDU.B"; "  + TestDU.E"])
+    (D 0, D 1, ["/value"; "  - 0"; "  + 1"])
+    (B 0, E 1, ["/"; "  - TestDU.B"; "  + TestDU.E"])
   ]
   run (fun (expected, actual, msg) -> test {
     let msg =
@@ -196,9 +200,10 @@ module Nested =
     let expected =
       let violated =
         [
-          "/Item/B"
-          "  - a"
+          "/Item/B/[0]"
           "  + b"
+          "/Item/B/[0]"
+          "  - a"
         ]
         |> String.concat Environment.NewLine
         |> Violated

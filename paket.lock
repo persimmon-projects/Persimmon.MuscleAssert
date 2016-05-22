@@ -1,7 +1,9 @@
 NUGET
+  remote: https://www.nuget.org/api/v2
+  specs:
+    FSharp.Object.Diff (0.3.1)
   remote: http://api.nuget.org/v3/index.json
   specs:
-    FSharp.Object.Diff (0.3)
     Persimmon (1.1)
 
 GROUP Build
