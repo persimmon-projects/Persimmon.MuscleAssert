@@ -1,4 +1,4 @@
-﻿module Persimmon.Assertion.Tests.AsserionTest
+﻿module Persimmon.Assertion.Tests.AssertionTest
 
 open System
 open System.Collections.Generic

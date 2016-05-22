@@ -58,7 +58,7 @@
   -->
   <ItemGroup>
     <None Include="paket.references" />
-    <Compile Include="AsserionTest.fs" />
+    <Compile Include="AssertionTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
