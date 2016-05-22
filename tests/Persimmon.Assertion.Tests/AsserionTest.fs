@@ -106,10 +106,10 @@ let ``dump diff DU`` = parameterize {
 
 let ``dump diff Map`` = parameterize {
   source [
-    (Map.empty, Map.empty |> Map.add 0 "a", ["/{0}[a]"; "  + a"])
-    (Map.empty |> Map.add 0 "a", Map.empty |> Map.add 0 "b", ["/{0}"; "  - a"; "  + b"])
-    (Map.empty |> Map.add 0 "a", Map.empty |> Map.add 0 "a" |> Map.add 1 "b", ["/{1}[b]"; "  + b"])
-    (Map.empty |> Map.add 0 "a", Map.empty |> Map.add 1 "b", ["/{1}[b]"; "  + b"; "/{0}[a]"; "  - a"])
+    (Map.empty, Map.empty |> Map.add 1 0, ["/{1}"; "  + 0"])
+    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 1 1, ["/{1}"; "  - 0"; "  + 1"])
+    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 1 0 |> Map.add 2 1, ["/{2}"; "  + 1"])
+    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 2 1, ["/{2}"; "  + 1"; "/{1}"; "  - 0"])
   ]
   run (fun (expected, actual, msg) -> test {
     let msg =
@@ -126,10 +126,10 @@ let ``dump diff Map`` = parameterize {
 
 let ``dump diff dict`` = parameterize {
   source [
-    (dict [], dict [(0, "a")], ["/{0}[a]"; "  + a"])
-    (dict [(0, "a")], dict [(0, "b")], ["/{0}"; "  - a"; "  + b"])
-    (dict [(0, "a")], dict [(0, "a"); (1, "b")], ["/{1}[b]"; "  + b"])
-    (dict [(0, "a")], dict [(1, "b")], ["/{1}[b]"; "  + b"; "/{0}[a]"; "  - a"])
+    (dict [], dict [(1, 0)], ["/{1}"; "  + 0"])
+    (dict [(1, 0)], dict [(1, 1)], ["/{1}"; "  - 0"; "  + 1"])
+    (dict [(1, 0)], dict [(1, 0); (2, 1)], ["/{2}"; "  + 1"])
+    (dict [(1, 0)], dict [(2, 1)], ["/{2}"; "  + 1"; "/{1}"; "  - 0"])
   ]
   run (fun (expected, actual, msg) -> test {
     let msg =
@@ -146,10 +146,10 @@ let ``dump diff dict`` = parameterize {
 
 let ``dump diff Dictionary`` = parameterize {
   source [
-    (Dictionary<int, string>(), Dictionary<int, string>(dict [(0, "a")]), ["/{0}[a]"; "  + a"])
-    (Dictionary<int, string>(dict [(0, "a")]), Dictionary<int, string>(dict [(0, "b")]), ["/{0}"; "  - a"; "  + b"])
-    (Dictionary<int, string>(dict [(0, "a")]), Dictionary<int, string>(dict [(0, "a"); (1, "b")]), ["/{1}[b]"; "  + b"])
-    (Dictionary<int, string>(dict [(0, "a")]), Dictionary<int, string>(dict [(1, "b")]), ["/{1}[b]"; "  + b"; "/{0}[a]"; "  - a"])
+    (Dictionary<int, int>(), Dictionary<int, int>(dict [(1, 0)]), ["/{1}"; "  + 0"])
+    (Dictionary<int, int>(dict [(1, 0)]), Dictionary<int, int>(dict [(1, 1)]), ["/{1}"; "  - 0"; "  + 1"])
+    (Dictionary<int, int>(dict [(1, 0)]), Dictionary<int, int>(dict [(1, 0); (2, 1)]), ["/{2}"; "  + 1"])
+    (Dictionary<int, int>(dict [(1, 0)]), Dictionary<int, int>(dict [(2, 1)]), ["/{2}"; "  + 1"; "/{1}"; "  - 0"])
   ]
   run (fun (expected, actual, msg) -> test {
     let msg =
@@ -163,3 +163,47 @@ let ``dump diff Dictionary`` = parameterize {
       |> assertEquals msg
   })
 }
+
+module Nested =
+
+  type TestRecord = {
+    A: string list
+    B: string
+  }
+
+  type TestDU =
+    | A
+    | B of TestRecord
+
+  let ``dump diff record value`` = parameterize {
+    source [
+      ({ A = ["a"]; B = "" }, { A = ["b"]; B = "" }, ["/A/[0]/[0]"; "  + b"; "/A/[0]/[0]"; "  - a"])
+    ]
+    run (fun (expected, actual, msg) -> test {
+      let msg =
+        let violated =
+          msg
+          |> String.concat Environment.NewLine
+          |> Violated
+        NotPassed(violated)
+      do!
+        Assert.equals expected actual
+        |> assertEquals msg
+    })
+  }
+
+  let ``dump diff DU`` = test {
+    let expected =
+      let violated =
+        [
+          "/Item/B"
+          "  - a"
+          "  + b"
+        ]
+        |> String.concat Environment.NewLine
+        |> Violated
+      NotPassed(violated)
+    do!
+      Assert.equals (B { A = []; B = "a" }) (B { A = []; B = "b" })
+      |> assertEquals expected
+  }

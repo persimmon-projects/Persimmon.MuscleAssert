@@ -7,12 +7,27 @@ open FSharp.Reflection
 open FSharp.Object.Diff
 open FSharp.Object.Diff.Dictionary
 
-type private IndexedEnumerator = {
-  Index: int
-  Enumerator: IEnumerator
-}
+type private IndexedMap = Dictionary<DiffNode, Dictionary<obj, int>>
 
-module private Translate =
+module private Path =
+
+  let toStr (d: IndexedMap) node value =
+    let rec inner acc (node: DiffNode) value =
+      if node.IsRootNode then
+        match acc with
+        | [] -> ["/"]
+        | _ -> "" :: acc
+      else
+        match d.TryGetValue(node.ParentNode) with
+        | true, d ->
+          let index = d.[node.CanonicalGet(value)]
+          inner (sprintf "[%d]" index :: acc) node.ParentNode value
+        | false, _ ->
+          inner (node.ElementSelector.HumanReadableString :: acc) node.ParentNode value
+    inner [] node value
+    |> String.concat "/"
+
+type private Translator(originalBase: obj, originalModified: obj, baseIndex: IndexedMap, modifiedIndex: IndexedMap) =
 
   let sub (o: obj) = String.indent 1 "- " + String.toSingleLineString o
   let add (o: obj) = String.indent 1 "+ " + String.toSingleLineString o
@@ -21,148 +36,104 @@ module private Translate =
     let info = cases |> Array.find (fun x -> x.Tag = tag)
     info.Name
 
-  let translateUnion (node: DiffNode) base_ modified =
+  let translateUnion (index: IndexedMap) (node: DiffNode) base_ modified =
     let typ = node.ParentNode.Type
     let cases = FSharpType.GetUnionCases(typ)
     if cases |> Array.exists (fun x -> node.PropertyName = "Is" + x.Name) then []
     elif node.PropertyName = "Tag" then
       [
-        node.ParentNode.Path.ToString()
+        Path.toStr index node.ParentNode originalBase
         base_ |> unbox<int> |> unionTag cases typ |> sprintf "%s.%s" typ.Name |> sub
         modified |> unbox<int> |> unionTag cases typ |> sprintf "%s.%s" typ.Name |> add
       ]
     else
       [
-        node.Path.ToString()
+        Path.toStr index node originalBase
         sub base_
         add modified
       ]
 
-  let change (node: DiffNode) (base_: obj) (modified: obj) =
+  let translateChange (node: DiffNode) (base_: obj) (modified: obj) =
     match base_, modified with
     | null, null -> []
     | null, _ ->
       [
-        node.Path.ToString()
+        Path.toStr modifiedIndex node originalModified
         add modified
       ]
     | _, null ->
       [
-        node.Path.ToString()
+        Path.toStr baseIndex node originalBase
         sub base_
       ]
     | _ ->
       if node.IsRootNode ||  not <| FSharpType.IsUnion(node.ParentNode.Type) then
         [
-          yield node.Path.ToString()
+          yield Path.toStr baseIndex node originalBase
           yield sub base_
           if modified <> null then
             yield add modified
         ]
       else
-        translateUnion node base_ modified
+        translateUnion baseIndex node base_ modified
 
-  let translateIEnumerable (hits: Dictionary<_, _>) (node: DiffNode) (base_: obj) (modified: obj) bx mx =
-
-    let dumpPath i = sprintf "%O[%d]" node.ParentNode.Path i
-
-    let rec inner index o (e: IEnumerator) =
-      if e.MoveNext() then
-        let index = index + 1
-        if e.Current = o then { Index = index; Enumerator = e }
-        else inner index o e
-      else { Index = index; Enumerator = e }
-
+  member __.Translate(node: DiffNode, base_: obj, modified: obj) =
     match node.State with
-    | Changed ->
-      match base_, modified with
-      | null, null -> []
-      | _, null ->
-        let bx = inner bx.Index base_ bx.Enumerator
-        hits.Remove(node) |> ignore
-        hits.Add(node, (bx, mx))
-        [
-          dumpPath bx.Index
-          sub base_
-        ]
-      | null, __ ->
-        let mx = inner mx.Index modified mx.Enumerator
-        hits.Remove(node) |> ignore
-        hits.Add(node, (bx, mx))
-        [
-          dumpPath mx.Index
-          add modified
-        ]
-      | _ ->
-        let mx = inner bx.Index base_ bx.Enumerator
-        let mx = inner mx.Index modified mx.Enumerator
-        hits.Remove(node) |> ignore
-        hits.Add(node, (bx, mx))
-        [
-          dumpPath bx.Index
-          sub base_
-          add modified
-        ]
+    | Changed -> translateChange node base_ modified
     | Added ->
-      let mx = inner mx.Index modified mx.Enumerator
-      hits.Remove(node) |> ignore
-      hits.Add(node, (bx, mx))
       [
-        dumpPath mx.Index
+        Path.toStr modifiedIndex node originalModified
         add modified
       ]
     | Removed ->
-      let bx = inner bx.Index base_ bx.Enumerator
-      hits.Remove(node) |> ignore
-      hits.Add(node, (bx, mx))
       [
-        dumpPath bx.Index
+        Path.toStr baseIndex node originalBase
         sub base_
       ]
     | _ -> []
-
-  let translate (hits: Dictionary<DiffNode, IndexedEnumerator * IndexedEnumerator>) (node: DiffNode) (base_: obj) (modified: obj) =
-    match hits.TryGetValue(node) with
-    | true, (bx, mx) -> translateIEnumerable hits node base_ modified bx mx
-    | false, _ ->
-      match node.State with
-      | Changed -> change node base_ modified
-      | Added ->
-        [
-          node.Path.ToString()
-          add modified
-        ]
-      | Removed ->
-        [
-          node.Path.ToString()
-          sub base_
-        ]
-      | _ -> []
 
 [<Sealed>]
 type internal AssertionVisitor(working: obj, base_: obj) =
 
   let diff = ResizeArray<string>()
 
-  let hits = Dictionary<DiffNode, IndexedEnumerator * IndexedEnumerator>()
-
   let filter (node: DiffNode) =
     (node.IsRootNode && not node.HasChanges) || (node.HasChanges && not node.HasChildren)
 
+  let indexed (d: Dictionary<obj, int>) (e: IEnumerable) =
+    let rec inner index (e: IEnumerator) =
+      if e.MoveNext() then
+        let index = index + 1
+        if not <| d.ContainsKey(e.Current) then d.Add(e.Current, index)
+        inner index e
+      else ()
+    e.GetEnumerator() |> inner -1
+
+  let collectIndex node value =
+    let acc = IndexedMap()
+    let rec inner (node: DiffNode) =
+      if node.IsRootNode then acc
+      else
+        let node = node.ParentNode
+        match node.CanonicalGet(value) with
+        | Dictionary _ -> inner node
+        | :? IEnumerable as xs ->
+          match acc.TryGetValue(node) with
+          | true, d ->
+            indexed d xs
+          | false, _ ->
+            let d = Dictionary<obj, int>()
+            indexed d xs
+            acc.Add(node, d)
+          inner node
+        | _ -> inner node
+    inner node
+
   let dumpDiff (node: DiffNode) (base_: obj) (modified: obj) =
     let ds =
-      if not <| node.IsRootNode then
-        match node.ParentNode.CanonicalGet(base_) with
-        | Dictionary _ -> ()
-        | :? IEnumerable as b when not <| hits.ContainsKey(node) ->
-          match node.ParentNode.CanonicalGet(modified) with
-          | :? IEnumerable as m ->
-            let b = { Index = -1; Enumerator = b.GetEnumerator() }
-            let m = { Index = -1; Enumerator = m.GetEnumerator() }
-            hits.Add(node, (b, m))
-          | _ -> ()
-        | _ -> ()
-      Translate.translate hits node (node.CanonicalGet(base_)) (node.CanonicalGet(modified))
+      let baseIndex = collectIndex node base_
+      let modifiedIndex = collectIndex node modified
+      Translator(base_, modified, baseIndex, modifiedIndex).Translate(node, node.CanonicalGet(base_), node.CanonicalGet(modified))
     diff.AddRange(ds)
 
   member __.Diff =
