@@ -1,15 +1,15 @@
 NUGET
   remote: http://api.nuget.org/v3/index.json
   specs:
-    FSharp.Object.Diff (0.2)
+    FSharp.Object.Diff (0.3)
     Persimmon (1.1)
 
 GROUP Build
 NUGET
   remote: http://api.nuget.org/v3/index.json
   specs:
-    FAKE (4.26)
-    FAKE.Lib (4.26)
+    FAKE (4.27)
+    FAKE.Lib (4.27)
     FAKE.Persimmon (1.0.4)
       FAKE.Lib (>= 4.1)
       Persimmon.Console (>= 1.0.2)
@@ -27,5 +27,5 @@ NUGET
 GITHUB
   remote: fsharp/FAKE
   specs:
-    modules/Octokit/Octokit.fsx (32e262c11174b196dc8af16a577c8c3aa0ab0b2b)
+    modules/Octokit/Octokit.fsx (8c077f35f8cd0350485109ddd1810dafe9885d1a)
       Octokit
