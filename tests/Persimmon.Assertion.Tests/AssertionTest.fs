@@ -35,10 +35,9 @@ let ``dump diff primitive value`` = test {
 
 let ``dump diff string`` = parameterize {
   source [
-    ("", "a", ["/[0]"; "  + a"])
-    ("a", "b", ["/[0]"; "  + b"; "/[0]"; "  - a"])
-    ("", "aa", ["/[0]"; "  + a"])
-    //("aaa", "aba", ["/[1]"; "  + b"; "/[1]"; "  - a"])
+    ("", "a", ["/"; "  - "; "  + a"])
+    ("a", "b", ["/"; "  - a"; "  + b"])
+    ("aaa", "aba", ["/"; "  - aaa"; "  + aba"])
   ]
   run (fun (expected, actual, msg) -> test {
     let msg =
@@ -183,7 +182,7 @@ module Nested =
 
   let ``dump diff record value`` = parameterize {
     source [
-      ({ A = ["a"]; B = "" }, { A = ["b"]; B = "" }, ["/A/[0]/[0]"; "  + b"; "/A/[0]/[0]"; "  - a"])
+      ({ A = ["a"]; B = "" }, { A = ["b"]; B = "" }, ["/A[0]"; "  + b"; "/A[0]"; "  - a"])
     ]
     run (fun (expected, actual, msg) -> test {
       let msg =
@@ -202,10 +201,9 @@ module Nested =
     let expected =
       let violated =
         [
-          "/Item/B/[0]"
-          "  + b"
-          "/Item/B/[0]"
+          "/Item/B"
           "  - a"
+          "  + b"
         ]
         |> String.concat Environment.NewLine
         |> Violated
