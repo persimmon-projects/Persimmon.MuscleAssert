@@ -87,6 +87,25 @@ let ``dump diff list`` = parameterize {
   })
 }
 
+let ``dump diff array`` = parameterize {
+  source [
+    ([||], [|1|], ["/[0]"; "  + 1"])
+    ([|1|], [|2|], ["/[0]"; "  + 2"; "/[0]"; "  - 1"])
+    ([|0; 1; 3|], [|0; 2; 3|], ["/[1]"; "  + 2"; "/[1]"; "  - 1"])
+  ]
+  run (fun (expected, actual, msg) -> test {
+    let msg =
+      let violated =
+        msg
+        |> String.concat Environment.NewLine
+        |> Violated
+      NotPassed(violated)
+    do!
+      Assert.equals expected actual
+      |> assertEquals msg
+  })
+}
+
 let ``dump diff DU`` = parameterize {
   source [
     (A, B 0, ["/"; "  - TestDU.A"; "  + TestDU.B"])
