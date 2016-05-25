@@ -17,21 +17,22 @@ type TestDU =
   | E of int
   | F of TestDU
 
-let ``dump diff primitive value`` = test {
-  let expected =
-    let violated =
-      [
-        "/"
-        "  - 0"
-        "  + 1"
-      ]
+module Helper =
+
+  let test (expected, actual, message) = test {
+    let msg =
+      message
       |> String.concat Environment.NewLine
       |> Violated
-    NotPassed(violated)
-  do!
-    Assert.equals 0 1
-    |> assertEquals expected
-}
+      |> NotPassed
+    do!
+      Assert.equals expected actual
+      |> assertEquals msg
+  }
+
+open Helper
+
+let ``dump diff primitive value`` = test (0, 1, ["/"; "  - 0"; "  + 1"])
 
 let ``dump diff string`` = parameterize {
   source [
@@ -39,49 +40,12 @@ let ``dump diff string`` = parameterize {
     ("a", "b", ["/"; "  - a"; "  + b"])
     ("aaa", "aba", ["/"; "  - aaa"; "  + aba"])
   ]
-  run (fun (expected, actual, msg) -> test {
-    let msg =
-      let violated =
-        msg
-        |> String.concat Environment.NewLine
-        |> Violated
-      NotPassed(violated)
-    do!
-      Assert.equals expected actual
-      |> assertEquals msg
-  })
+  run test
 }
 
-let ``dump diff tuple`` = test {
-  let expected =
-    [
-      "/Item1"
-      "  - 0"
-      "  + 1"
-    ]
-    |> String.concat Environment.NewLine
-    |> Violated
-    |> NotPassed
-  do!
-    Assert.equals (0, 0) (1, 0)
-    |> assertEquals expected
-}
+let ``dump diff tuple`` = test ((0, 0), (1, 0), ["/Item1"; "  - 0"; "  + 1"])
 
-let ``dump diff record value`` = test {
-  let expected =
-    let violated =
-      [
-        "/A"
-        "  - 0"
-        "  + 1"
-      ]
-      |> String.concat Environment.NewLine
-      |> Violated
-    NotPassed(violated)
-  do!
-    Assert.equals { A = 0 } { A = 1 }
-    |> assertEquals expected
-}
+let ``dump diff record value`` = test ({ A = 0 }, { A = 1 }, ["/A"; "  - 0"; "  + 1"])
 
 let ``dump diff list`` = parameterize {
   source [
@@ -89,17 +53,7 @@ let ``dump diff list`` = parameterize {
     ([0], [2], ["/[0]"; "  + 2"; "/[0]"; "  - 0"])
     ([0; 1; 3], [0; 2; 3], ["/[1]"; "  + 2"; "/[1]"; "  - 1"])
   ]
-  run (fun (expected, actual, msg) -> test {
-    let msg =
-      let violated =
-        msg
-        |> String.concat Environment.NewLine
-        |> Violated
-      NotPassed(violated)
-    do!
-      Assert.equals expected actual
-      |> assertEquals msg
-  })
+  run test
 }
 
 let ``dump diff array`` = parameterize {
@@ -108,17 +62,7 @@ let ``dump diff array`` = parameterize {
     ([|1|], [|2|], ["/[0]"; "  + 2"; "/[0]"; "  - 1"])
     ([|0; 1; 3|], [|0; 2; 3|], ["/[1]"; "  + 2"; "/[1]"; "  - 1"])
   ]
-  run (fun (expected, actual, msg) -> test {
-    let msg =
-      let violated =
-        msg
-        |> String.concat Environment.NewLine
-        |> Violated
-      NotPassed(violated)
-    do!
-      Assert.equals expected actual
-      |> assertEquals msg
-  })
+  run test
 }
 
 let ``dump diff DU`` = parameterize {
@@ -130,17 +74,7 @@ let ``dump diff DU`` = parameterize {
     (B 0, E 1, ["/"; "  - TestDU.B"; "  + TestDU.E"])
     (F(B 0), F(B 1), ["/Item/Item"; "  - 0"; "  + 1"])
   ]
-  run (fun (expected, actual, msg) -> test {
-    let msg =
-      let violated =
-        msg
-        |> String.concat Environment.NewLine
-        |> Violated
-      NotPassed(violated)
-    do!
-      Assert.equals expected actual
-      |> assertEquals msg
-  })
+  run test
 }
 
 let ``dump diff Map`` = parameterize {
@@ -150,17 +84,7 @@ let ``dump diff Map`` = parameterize {
     (Map.empty |> Map.add 1 0, Map.empty |> Map.add 1 0 |> Map.add 2 1, ["/{2}"; "  + 1"])
     (Map.empty |> Map.add 1 0, Map.empty |> Map.add 2 1, ["/{2}"; "  + 1"; "/{1}"; "  - 0"])
   ]
-  run (fun (expected, actual, msg) -> test {
-    let msg =
-      let violated =
-        msg
-        |> String.concat Environment.NewLine
-        |> Violated
-      NotPassed(violated)
-    do!
-      Assert.equals expected actual
-      |> assertEquals msg
-  })
+  run test
 }
 
 let ``dump diff dict`` = parameterize {
@@ -170,17 +94,7 @@ let ``dump diff dict`` = parameterize {
     (dict [(1, 0)], dict [(1, 0); (2, 1)], ["/{2}"; "  + 1"])
     (dict [(1, 0)], dict [(2, 1)], ["/{2}"; "  + 1"; "/{1}"; "  - 0"])
   ]
-  run (fun (expected, actual, msg) -> test {
-    let msg =
-      let violated =
-        msg
-        |> String.concat Environment.NewLine
-        |> Violated
-      NotPassed(violated)
-    do!
-      Assert.equals expected actual
-      |> assertEquals msg
-  })
+  run test
 }
 
 let ``dump diff Dictionary`` = parameterize {
@@ -190,17 +104,7 @@ let ``dump diff Dictionary`` = parameterize {
     (Dictionary<int, int>(dict [(1, 0)]), Dictionary<int, int>(dict [(1, 0); (2, 1)]), ["/{2}"; "  + 1"])
     (Dictionary<int, int>(dict [(1, 0)]), Dictionary<int, int>(dict [(2, 1)]), ["/{2}"; "  + 1"; "/{1}"; "  - 0"])
   ]
-  run (fun (expected, actual, msg) -> test {
-    let msg =
-      let violated =
-        msg
-        |> String.concat Environment.NewLine
-        |> Violated
-      NotPassed(violated)
-    do!
-      Assert.equals expected actual
-      |> assertEquals msg
-  })
+  run test
 }
 
 module Nested =
@@ -218,31 +122,7 @@ module Nested =
     source [
       ({ A = ["a"]; B = "" }, { A = ["b"]; B = "" }, ["/A[0]"; "  + b"; "/A[0]"; "  - a"])
     ]
-    run (fun (expected, actual, msg) -> test {
-      let msg =
-        let violated =
-          msg
-          |> String.concat Environment.NewLine
-          |> Violated
-        NotPassed(violated)
-      do!
-        Assert.equals expected actual
-        |> assertEquals msg
-    })
+    run test
   }
 
-  let ``dump diff DU`` = test {
-    let expected =
-      let violated =
-        [
-          "/Item/B"
-          "  - a"
-          "  + b"
-        ]
-        |> String.concat Environment.NewLine
-        |> Violated
-      NotPassed(violated)
-    do!
-      Assert.equals (B { A = []; B = "a" }) (B { A = []; B = "b" })
-      |> assertEquals expected
-  }
+  let ``dump diff DU`` = test (B { A = []; B = "a" }, B { A = []; B = "b" }, ["/Item/B"; "  - a"; "  + b"])
