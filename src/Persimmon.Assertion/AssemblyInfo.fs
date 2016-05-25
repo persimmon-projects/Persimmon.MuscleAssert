@@ -8,9 +8,9 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyDescriptionAttribute("")>]
 [<assembly: AssemblyVersionAttribute("0.1.0")>]
 [<assembly: AssemblyFileVersionAttribute("0.1.0")>]
-[<assembly: AssemblyInformationalVersionAttribute("0.1.0")>]
+[<assembly: AssemblyInformationalVersionAttribute("0.1.0-beta")>]
 do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] Version = "0.1.0"
-    let [<Literal>] InformationalVersion = "0.1.0"
+    let [<Literal>] InformationalVersion = "0.1.0-beta"

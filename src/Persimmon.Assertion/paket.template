@@ -14,4 +14,4 @@ requireLicenseAcceptance
 tags
     F#, fsharp, testing
 description
-
+  Persimmon.Assertion provide assertions for Persimmon.
