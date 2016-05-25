@@ -52,6 +52,21 @@ let ``dump diff string`` = parameterize {
   })
 }
 
+let ``dump diff tuple`` = test {
+  let expected =
+    [
+      "/Item1"
+      "  - 0"
+      "  + 1"
+    ]
+    |> String.concat Environment.NewLine
+    |> Violated
+    |> NotPassed
+  do!
+    Assert.equals (0, 0) (1, 0)
+    |> assertEquals expected
+}
+
 let ``dump diff record value`` = test {
   let expected =
     let violated =
