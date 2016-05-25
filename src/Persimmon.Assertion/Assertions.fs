@@ -4,6 +4,7 @@ open System
 open Persimmon
 open FSharp.Object.Diff
 
+[<NoEquality; NoComparison>]
 type Assert(differ: ObjectDiffer, visitor: CustomAssertionVisitor) =
   
   member __.equals (a: 'T) (b: 'T) =
