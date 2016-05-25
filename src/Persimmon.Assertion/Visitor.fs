@@ -71,6 +71,10 @@ module private Translator =
       ]
     | _ -> []
 
+type CustomAssertionVisitor =
+  inherit NodeVisitor
+  abstract member Diff: string
+
 [<Sealed>]
 type internal AssertionVisitor(working: obj, base_: obj) =
 
@@ -87,6 +91,9 @@ type internal AssertionVisitor(working: obj, base_: obj) =
   member __.Diff =
     diff
     |> String.concat Environment.NewLine
+
+  interface CustomAssertionVisitor with
+    member this.Diff = this.Diff
 
   interface NodeVisitor with
     member __.Node(node, _) =
