@@ -122,20 +122,27 @@ module Nested =
 
   type TestRecord = {
     X: string list
-    Y: string
+    Y: int
   }
 
   type TestDU =
     | A
     | B of TestRecord
 
-  let ``dump diff record value`` = parameterize {
+  let ``dump diff record includeing list`` = parameterize {
     source [
-      ({ X = ["a"]; Y = "" }, { X = ["b"]; Y = "" }, [".X.[0]"; "  expected a"; "  actual b"])
+      ({ X = ["a"]; Y = 1 }, { X = ["b"]; Y = 1 }, [".X.[0]"; "  expected a"; "  actual b"])
     ]
     run test
   }
 
-  let ``dump diff DU`` = test (B { X = []; Y = "a" }, B { X = []; Y = "b" }, [".Item.Y"; "  expected a"; "  actual b"])
+  let ``dump diff DU includeing record`` =
+    test (B { X = []; Y = 1 }, B { X = []; Y = 2 }, [".Item.Y"; "  expected 1"; "  actual 2"])
 
-  let ``dump diff list`` = test ([ { A = 1 } ], [ { A = 2 } ], [".[0].A"; "  expected 1"; "  actual 2"])
+  let ``dump diff list including record`` = parameterize {
+    source [
+      ([ { X = [] ; Y = 1 } ], [ { X = []; Y = 2 } ], [".[0].Y"; "  expected 1"; "  actual 2"])
+      ([ { X = ["a"; "B"]; Y = 1 } ], [ { X = ["A"; "B"]; Y = 1 } ], [".[0].X.[0]"; "  expected a"; "  actual A"])
+    ]
+    run test
+  }

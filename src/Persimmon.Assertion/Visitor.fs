@@ -128,15 +128,17 @@ type private Translator(subPrefix: string, addPrefix: string) =
             y.Node.State <- Changed
             [{ x with Modified = y.Modified }]
         | (Changed, Changed) ->
-          let b = if x.Base <> null then x.Base else y.Base
-          let m = if x.Modified <> null then x.Modified else y.Modified
-          [
-            {
-              Node = x.Node
-              Base = b
-              Modified = m
-            }
-          ]
+          if x.Base = y.Modified && x.Modified = y.Base then []
+          else
+            let b = if x.Base <> null then x.Base else y.Base
+            let m = if x.Modified <> null then x.Modified else y.Modified
+            [
+              {
+                Node = x.Node
+                Base = b
+                Modified = m
+              }
+            ]
         | _ -> [x; y]
       | _ -> []
     )
