@@ -9,8 +9,8 @@ open FSharp.Object.Diff.Dictionary
 
 type private Difference = {
   Node: DiffNode
-  Base: obj
-  Modified: obj
+  Expected: obj
+  Actual: obj
 }
 
 module private Path =
@@ -35,76 +35,76 @@ module private Path =
     loop None path.ElementSelectors
     builder.ToString()
 
-type private Translator(subPrefix: string, addPrefix: string) =
+type private Translator(expectedPrefix: string, actualPrefix: string) =
 
   let diff = ResizeArray<Difference>()
 
   let prefix p (o: obj) = String.indent 1 p + " " + String.toSingleLineString o
-  let sub (o: obj) = prefix subPrefix o
-  let add (o: obj) = prefix addPrefix o
+  let appendExpectedPrefix (o: obj) = prefix expectedPrefix o
+  let appendActualPrefix (o: obj) = prefix actualPrefix o
 
   let unionTag (cases: UnionCaseInfo []) typ tag =
     let info = cases |> Array.find (fun x -> x.Tag = tag)
     info.Name
 
-  let translateUnion (node: DiffNode) base_ modified =
+  let translateUnion (node: DiffNode) expected actual =
     let typ = node.ParentNode.Type
     let cases = FSharpType.GetUnionCases(typ)
     if cases |> Array.exists (fun x -> node.PropertyName = "Is" + x.Name) then []
     elif node.PropertyName = "Tag" then
       [
         Path.toStr node.ParentNode.Path
-        base_ |> unbox<int> |> unionTag cases typ |> sprintf "%s.%s" typ.Name |> sub
-        modified |> unbox<int> |> unionTag cases typ |> sprintf "%s.%s" typ.Name |> add
+        expected |> unbox<int> |> unionTag cases typ |> sprintf "%s.%s" typ.Name |> appendExpectedPrefix
+        actual |> unbox<int> |> unionTag cases typ |> sprintf "%s.%s" typ.Name |> appendActualPrefix
       ]
     else
       [
         Path.toStr node.Path
-        sub base_
-        add modified
+        appendExpectedPrefix expected
+        appendActualPrefix actual
       ]
 
-  let translateChange (node: DiffNode) (base_: obj) (modified: obj) =
-    match base_, modified with
+  let translateChange (node: DiffNode) (expected: obj) (actual: obj) =
+    match expected, actual with
     | null, null -> []
     | null, _ ->
       [
         Path.toStr node.Path
-        add modified
+        appendActualPrefix actual
       ]
     | _, null ->
       [
         Path.toStr node.Path
-        sub base_
+        appendExpectedPrefix expected
       ]
     | _ ->
       if node.IsRootNode ||  not <| FSharpType.IsUnion(node.ParentNode.Type) then
         [
           Path.toStr node.Path
-          sub base_
-          add modified
+          appendExpectedPrefix expected
+          appendActualPrefix actual
         ]
       else
-        translateUnion node base_ modified
+        translateUnion node expected actual
 
-  let translate (node: DiffNode) (base_: obj) (modified: obj) =
+  let translate (node: DiffNode) (expected: obj) (actal: obj) =
     match node.State with
-    | Changed -> translateChange node base_ modified
+    | Changed -> translateChange node expected actal
     | Added ->
       [
         Path.toStr node.Path
-        add modified
+        appendActualPrefix actal
       ]
     | Removed ->
       [
         Path.toStr node.Path
-        sub base_
+        appendExpectedPrefix expected
       ]
     | _ -> []
 
-  member __.Add(node: DiffNode, base_: obj, modified: obj) =
+  member __.Add(node: DiffNode, expected: obj, actual: obj) =
     match node.State with
-    | Changed | Added | Removed -> diff.Add({ Node = node; Base = base_; Modified = modified })
+    | Changed | Added | Removed -> diff.Add({ Node = node; Expected = expected; Actual = actual })
     | _ -> ()
 
   member __.Translate() =
@@ -116,33 +116,33 @@ type private Translator(subPrefix: string, addPrefix: string) =
       | [x; y] ->
         match (x.Node.State, y.Node.State) with
         | (Added, Removed) ->
-          if x.Modified = y.Base then []
+          if x.Actual = y.Expected then []
           else
             x.Node.State <- Changed
             y.Node.State <- Changed
-            [{ x with Base = y.Base }]
+            [{ x with Expected = y.Expected }]
         | (Removed, Added) ->
-          if x.Base = y.Modified then []
+          if x.Expected = y.Actual then []
           else
             x.Node.State <- Changed
             y.Node.State <- Changed
-            [{ x with Modified = y.Modified }]
+            [{ x with Actual = y.Actual }]
         | (Changed, Changed) ->
-          if x.Base = y.Modified && x.Modified = y.Base then []
+          if x.Expected = y.Actual && x.Actual = y.Expected then []
           else
-            let b = if x.Base <> null then x.Base else y.Base
-            let m = if x.Modified <> null then x.Modified else y.Modified
+            let b = if x.Expected <> null then x.Expected else y.Expected
+            let m = if x.Actual <> null then x.Actual else y.Actual
             [
               {
                 Node = x.Node
-                Base = b
-                Modified = m
+                Expected = b
+                Actual = m
               }
             ]
         | _ -> [x; y]
       | _ -> []
     )
-    |> Seq.collect (fun x -> translate x.Node x.Base x.Modified)
+    |> Seq.collect (fun x -> translate x.Node x.Expected x.Actual)
     |> String.concat Environment.NewLine
 
 type CustomAssertionVisitor =
@@ -150,15 +150,13 @@ type CustomAssertionVisitor =
   abstract member Diff: string
 
 [<Sealed>]
-type internal AssertionVisitor(subPrefix: string, addPrefix: string, working: obj, base_: obj) =
+type internal AssertionVisitor(expectedPrefix: string, expected: obj, actualPrefix: string, actual: obj) =
 
-  let translator = Translator(subPrefix, addPrefix)
+  let translator = Translator(expectedPrefix, actualPrefix)
 
   let filter (node: DiffNode) =
     (node.IsRootNode && not node.HasChanges) || (node.HasChanges && not node.HasChildren)
 
-  let dumpDiff (node: DiffNode) (base_: obj) (modified: obj) =
-    translator.Add(node, node.CanonicalGet(base_), node.CanonicalGet(modified))
 
   member __.Diff = translator.Translate()
 
@@ -167,4 +165,4 @@ type internal AssertionVisitor(subPrefix: string, addPrefix: string, working: ob
 
   interface NodeVisitor with
     member __.Node(node, _) =
-      if filter node then dumpDiff node base_ working
+      if filter node then translator.Add(node, node.CanonicalGet(expected), node.CanonicalGet(actual))

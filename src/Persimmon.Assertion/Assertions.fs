@@ -25,4 +25,4 @@ module Assert =
       .Build()
 
   let equals (a: 'T) (b: 'T) =
-    Assert(differ, AssertionVisitor("expected", "actual", b, a)).equals a b
+    Assert(differ, AssertionVisitor("expected", a, "actual", b)).equals a b
