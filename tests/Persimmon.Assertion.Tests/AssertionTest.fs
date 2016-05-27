@@ -19,7 +19,7 @@ type TestDU =
 
 let ``prefix check`` = test {
   let msg =
-    ["/"; "  left 0"; "  right 1"]
+    ["."; "  left 0"; "  right 1"]
     |> String.concat Environment.NewLine
     |> Violated
     |> NotPassed
@@ -43,77 +43,77 @@ module Helper =
 
 open Helper
 
-let ``dump diff primitive value`` = test (0, 1, ["/"; "  expected 0"; "  actual 1"])
+let ``dump diff primitive value`` = test (0, 1, ["."; "  expected 0"; "  actual 1"])
 
 let ``dump diff string`` = parameterize {
   source [
-    ("", "a", ["/"; "  expected "; "  actual a"])
-    ("a", "b", ["/"; "  expected a"; "  actual b"])
-    ("aaa", "aba", ["/"; "  expected aaa"; "  actual aba"])
+    ("", "a", ["."; "  expected "; "  actual a"])
+    ("a", "b", ["."; "  expected a"; "  actual b"])
+    ("aaa", "aba", ["."; "  expected aaa"; "  actual aba"])
   ]
   run test
 }
 
-let ``dump diff tuple`` = test ((0, 0), (1, 0), ["/Item1"; "  expected 0"; "  actual 1"])
+let ``dump diff tuple`` = test ((0, 0), (1, 0), [".Item1"; "  expected 0"; "  actual 1"])
 
-let ``dump diff record value`` = test ({ A = 0 }, { A = 1 }, ["/A"; "  expected 0"; "  actual 1"])
+let ``dump diff record value`` = test ({ A = 0 }, { A = 1 }, [".A"; "  expected 0"; "  actual 1"])
 
 let ``dump diff list`` = parameterize {
   source [
-    ([], [0], ["/[0]"; "  actual 0"])
-    ([0], [2], ["/[0]"; "  expected 0"; "  actual 2"])
-    ([0; 1; 3], [0; 2; 3], ["/[1]"; "  expected 1"; "  actual 2"])
+    ([], [0], [".[0]"; "  actual 0"])
+    ([0], [2], [".[0]"; "  expected 0"; "  actual 2"])
+    ([0; 1; 3], [0; 2; 3], [".[1]"; "  expected 1"; "  actual 2"])
   ]
   run test
 }
 
 let ``dump diff array`` = parameterize {
   source [
-    ([||], [|1|], ["/[0]"; "  actual 1"])
-    ([|1|], [|2|], ["/[0]"; "  expected 1"; "  actual 2"])
-    ([|0; 1; 3|], [|0; 2; 3|], ["/[1]"; "  expected 1"; "  actual 2"])
+    ([||], [|1|], [".[0]"; "  actual 1"])
+    ([|1|], [|2|], [".[0]"; "  expected 1"; "  actual 2"])
+    ([|0; 1; 3|], [|0; 2; 3|], [".[1]"; "  expected 1"; "  actual 2"])
   ]
   run test
 }
 
 let ``dump diff DU`` = parameterize {
   source [
-    (A, B 0, ["/"; "  expected TestDU.A"; "  actual TestDU.B"])
-    (B 0, B 1, ["/Item"; "  expected 0"; "  actual 1"])
-    (C(0, 1), C(0, 2), ["/Item2"; "  expected 1"; "  actual 2"])
-    (D 0, D 1, ["/value"; "  expected 0"; "  actual 1"])
-    (B 0, E 1, ["/"; "  expected TestDU.B"; "  actual TestDU.E"])
-    (F(B 0), F(B 1), ["/Item/Item"; "  expected 0"; "  actual 1"])
+    (A, B 0, ["."; "  expected TestDU.A"; "  actual TestDU.B"])
+    (B 0, B 1, [".Item"; "  expected 0"; "  actual 1"])
+    (C(0, 1), C(0, 2), [".Item2"; "  expected 1"; "  actual 2"])
+    (D 0, D 1, [".value"; "  expected 0"; "  actual 1"])
+    (B 0, E 1, ["."; "  expected TestDU.B"; "  actual TestDU.E"])
+    (F(B 0), F(B 1), [".Item.Item"; "  expected 0"; "  actual 1"])
   ]
   run test
 }
 
 let ``dump diff Map`` = parameterize {
   source [
-    (Map.empty, Map.empty |> Map.add 1 0, ["/{1}"; "  actual 0"])
-    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 1 1, ["/{1}"; "  expected 0"; "  actual 1"])
-    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 1 0 |> Map.add 2 1, ["/{2}"; "  actual 1"])
-    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 2 1, ["/{2}"; "  actual 1"; "/{1}"; "  expected 0"])
+    (Map.empty, Map.empty |> Map.add 1 0, [".{1}"; "  actual 0"])
+    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 1 1, [".{1}"; "  expected 0"; "  actual 1"])
+    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 1 0 |> Map.add 2 1, [".{2}"; "  actual 1"])
+    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 2 1, [".{2}"; "  actual 1"; ".{1}"; "  expected 0"])
   ]
   run test
 }
 
 let ``dump diff dict`` = parameterize {
   source [
-    (dict [], dict [(1, 0)], ["/{1}"; "  actual 0"])
-    (dict [(1, 0)], dict [(1, 1)], ["/{1}"; "  expected 0"; "  actual 1"])
-    (dict [(1, 0)], dict [(1, 0); (2, 1)], ["/{2}"; "  actual 1"])
-    (dict [(1, 0)], dict [(2, 1)], ["/{2}"; "  actual 1"; "/{1}"; "  expected 0"])
+    (dict [], dict [(1, 0)], [".{1}"; "  actual 0"])
+    (dict [(1, 0)], dict [(1, 1)], [".{1}"; "  expected 0"; "  actual 1"])
+    (dict [(1, 0)], dict [(1, 0); (2, 1)], [".{2}"; "  actual 1"])
+    (dict [(1, 0)], dict [(2, 1)], [".{2}"; "  actual 1"; ".{1}"; "  expected 0"])
   ]
   run test
 }
 
 let ``dump diff Dictionary`` = parameterize {
   source [
-    (Dictionary<int, int>(), Dictionary<int, int>(dict [(1, 0)]), ["/{1}"; "  actual 0"])
-    (Dictionary<int, int>(dict [(1, 0)]), Dictionary<int, int>(dict [(1, 1)]), ["/{1}"; "  expected 0"; "  actual 1"])
-    (Dictionary<int, int>(dict [(1, 0)]), Dictionary<int, int>(dict [(1, 0); (2, 1)]), ["/{2}"; "  actual 1"])
-    (Dictionary<int, int>(dict [(1, 0)]), Dictionary<int, int>(dict [(2, 1)]), ["/{2}"; "  actual 1"; "/{1}"; "  expected 0"])
+    (Dictionary<int, int>(), Dictionary<int, int>(dict [(1, 0)]), [".{1}"; "  actual 0"])
+    (Dictionary<int, int>(dict [(1, 0)]), Dictionary<int, int>(dict [(1, 1)]), [".{1}"; "  expected 0"; "  actual 1"])
+    (Dictionary<int, int>(dict [(1, 0)]), Dictionary<int, int>(dict [(1, 0); (2, 1)]), [".{2}"; "  actual 1"])
+    (Dictionary<int, int>(dict [(1, 0)]), Dictionary<int, int>(dict [(2, 1)]), [".{2}"; "  actual 1"; ".{1}"; "  expected 0"])
   ]
   run test
 }
@@ -131,11 +131,11 @@ module Nested =
 
   let ``dump diff record value`` = parameterize {
     source [
-      ({ X = ["a"]; Y = "" }, { X = ["b"]; Y = "" }, ["/X[0]"; "  expected a"; "  actual b"])
+      ({ X = ["a"]; Y = "" }, { X = ["b"]; Y = "" }, [".X.[0]"; "  expected a"; "  actual b"])
     ]
     run test
   }
 
-  let ``dump diff DU`` = test (B { X = []; Y = "a" }, B { X = []; Y = "b" }, ["/Item/Y"; "  expected a"; "  actual b"])
+  let ``dump diff DU`` = test (B { X = []; Y = "a" }, B { X = []; Y = "b" }, [".Item.Y"; "  expected a"; "  actual b"])
 
-  let ``dump diff list`` = test ([ { A = 1 } ], [ { A = 2 } ], ["/[0]/A"; "  expected 1"; "  actual 2"])
+  let ``dump diff list`` = test ([ { A = 1 } ], [ { A = 2 } ], [".[0].A"; "  expected 1"; "  actual 2"])

@@ -13,6 +13,28 @@ type private Difference = {
   Modified: obj
 }
 
+module private Path =
+
+  open System.Text
+  open Printf
+
+  let toStr (path: NodePath) =
+    let builder = StringBuilder()
+    let rec loop (previous: ElementSelector option) (selectors: ElementSelector list) =
+      match previous, selectors with
+      | _, [] -> ()
+      | _, x :: xs when (x :? RootElementSelector) ->
+        builder.Append(".") |> ignore
+        loop (Some x) xs
+      | Some p, x :: xs when (p :? RootElementSelector) ->
+        bprintf builder "%O" x
+        loop (Some x) xs
+      | _, x :: xs ->
+        bprintf builder ".%O" x
+        loop (Some x) xs
+    loop None path.ElementSelectors
+    builder.ToString()
+
 type private Translator(subPrefix: string, addPrefix: string) =
 
   let diff = ResizeArray<Difference>()
@@ -31,13 +53,13 @@ type private Translator(subPrefix: string, addPrefix: string) =
     if cases |> Array.exists (fun x -> node.PropertyName = "Is" + x.Name) then []
     elif node.PropertyName = "Tag" then
       [
-        node.ParentNode.Path.ToString()
+        Path.toStr node.ParentNode.Path
         base_ |> unbox<int> |> unionTag cases typ |> sprintf "%s.%s" typ.Name |> sub
         modified |> unbox<int> |> unionTag cases typ |> sprintf "%s.%s" typ.Name |> add
       ]
     else
       [
-        node.Path.ToString()
+        Path.toStr node.Path
         sub base_
         add modified
       ]
@@ -47,18 +69,18 @@ type private Translator(subPrefix: string, addPrefix: string) =
     | null, null -> []
     | null, _ ->
       [
-        node.Path.ToString()
+        Path.toStr node.Path
         add modified
       ]
     | _, null ->
       [
-        node.Path.ToString()
+        Path.toStr node.Path
         sub base_
       ]
     | _ ->
       if node.IsRootNode ||  not <| FSharpType.IsUnion(node.ParentNode.Type) then
         [
-          node.Path.ToString()
+          Path.toStr node.Path
           sub base_
           add modified
         ]
@@ -70,12 +92,12 @@ type private Translator(subPrefix: string, addPrefix: string) =
     | Changed -> translateChange node base_ modified
     | Added ->
       [
-        node.Path.ToString()
+        Path.toStr node.Path
         add modified
       ]
     | Removed ->
       [
-        node.Path.ToString()
+        Path.toStr node.Path
         sub base_
       ]
     | _ -> []
@@ -87,7 +109,7 @@ type private Translator(subPrefix: string, addPrefix: string) =
 
   member __.Translate() =
     diff
-    |> Seq.groupBy (fun x -> x.Node.Path.ToString())
+    |> Seq.groupBy (fun x -> Path.toStr x.Node.Path)
     |> Seq.collect (fun (_, ds) ->
       match List.ofSeq ds with
       | [x] -> [x]
