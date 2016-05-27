@@ -8,20 +8,32 @@ open FSharp.Object.Diff
 type Assert(differ: ObjectDiffer, visitor: CustomAssertionVisitor) =
   
   member __.equals (expected: 'T) (actual: 'T) =
-    if expected = actual then pass ()
+    if IEnumerable.isIEnumerable typeof<'T> && IEnumerable.equal expected actual then pass ()
+    elif expected = actual then pass ()
     else
       let node = differ.Compare(actual, expected)
       node.Visit(visitor)
-      fail visitor.Diff
+      let diff = visitor.Diff
+      if String.IsNullOrEmpty diff then
+        sprintf "Expect: %A%sActual: %A" expected Environment.NewLine actual
+      else diff
+      |> fail
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Assert =
 
   let internal differ =
-    ObjectDifferBuilder.StartBuilding()
-      .Comparison.OfPrimitiveTypes()
-      .ToTreatDefaultValuesAs(Assigned)
-      .And()
+    let builder =
+      ObjectDifferBuilder.StartBuilding()
+        .Comparison.OfPrimitiveTypes()
+        .ToTreatDefaultValuesAs(Assigned)
+        .And()
+    builder
+      .Differs
+      .Register({ new DifferFactory with
+        member __.CreateDiffer(dispatcher, service) =
+          IEnumerableDiffer(dispatcher, service, builder.Identity) :> Differ
+      })
       .Build()
 
   let equals (expected: 'T) (actual: 'T) =

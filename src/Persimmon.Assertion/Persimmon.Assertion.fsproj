@@ -52,6 +52,7 @@
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="IEnumerable.fs" />
     <Compile Include="Visitor.fs" />
     <Compile Include="Assertions.fs" />
     <Compile Include="Syntax.fs" />

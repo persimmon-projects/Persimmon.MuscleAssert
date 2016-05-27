@@ -17,6 +17,12 @@ type TestDU =
   | E of int
   | F of TestDU
 
+let ``pass seq test`` = test {
+  do!
+    Assert.equals (seq { 0 .. 2 }) (seq { 0 .. 2})
+    |> assertEquals (Passed ())
+}
+
 let ``prefix check`` = test {
   let msg =
     ["."; "  left  0"; "  right 1"]
@@ -78,6 +84,16 @@ let ``dump diff array`` = parameterize {
     ([|1|], [||], [".[0]"; "  expected 1"])
     ([|1|], [|2|], [".[0]"; expected 1; actual 2])
     ([|0; 1; 3|], [|0; 2; 3|], [".[1]"; expected 1; actual 2])
+  ]
+  run test
+}
+
+let ``dump diff seq`` = parameterize {
+  source [
+    (Seq.empty, Seq.singleton 1, [".[0]"; "  actual 1"])
+    (Seq.singleton 1, Seq.empty, [".[0]"; "  expected 1"])
+    (Seq.singleton 1, Seq.singleton 2, [".[0]"; expected 1; actual 2])
+    (seq { yield 0; yield 1; yield 3 }, seq { yield 0; yield 2; yield 3 }, [".[1]"; expected 1; actual 2])
   ]
   run test
 }

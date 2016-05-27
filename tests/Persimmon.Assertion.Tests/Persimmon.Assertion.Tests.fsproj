@@ -58,6 +58,7 @@
   -->
   <ItemGroup>
     <None Include="paket.references" />
+    <Compile Include="IEnumerableTest.fs" />
     <Compile Include="AssertionTest.fs" />
   </ItemGroup>
   <ItemGroup>
