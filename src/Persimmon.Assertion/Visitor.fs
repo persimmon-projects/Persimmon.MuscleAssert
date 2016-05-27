@@ -39,9 +39,19 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
 
   let diff = ResizeArray<Difference>()
 
+  let fixedExpectedPrefix, fixedActualPrefix =
+    let el = String.length expectedPrefix
+    let al = String.length actualPrefix
+    let pad = String.replicate (abs (el - al)) " "
+    let e =if el < al then expectedPrefix + pad else expectedPrefix
+    let a = if el > al then actualPrefix + pad else actualPrefix
+    (e, a)
+
   let prefix p (o: obj) = String.indent 1 p + " " + String.toSingleLineString o
-  let appendExpectedPrefix (o: obj) = prefix expectedPrefix o
-  let appendActualPrefix (o: obj) = prefix actualPrefix o
+  let appendExpectedPrefix (o: obj) = prefix fixedExpectedPrefix o
+  let appendActualPrefix (o: obj) = prefix fixedActualPrefix o
+  let appendOnlyExpectedPrefix (o: obj) = prefix expectedPrefix o
+  let appendOnlyActualPrefix (o: obj) = prefix actualPrefix o
 
   let unionTag (cases: UnionCaseInfo []) typ tag =
     let info = cases |> Array.find (fun x -> x.Tag = tag)
@@ -70,12 +80,12 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
     | null, _ ->
       [
         Path.toStr node.Path
-        appendActualPrefix actual
+        appendOnlyActualPrefix actual
       ]
     | _, null ->
       [
         Path.toStr node.Path
-        appendExpectedPrefix expected
+        appendOnlyExpectedPrefix expected
       ]
     | _ ->
       if node.IsRootNode ||  not <| FSharpType.IsUnion(node.ParentNode.Type) then
@@ -93,12 +103,12 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
     | Added ->
       [
         Path.toStr node.Path
-        appendActualPrefix actal
+        appendOnlyActualPrefix actal
       ]
     | Removed ->
       [
         Path.toStr node.Path
-        appendExpectedPrefix expected
+        appendOnlyExpectedPrefix expected
       ]
     | _ -> []
 
@@ -156,7 +166,6 @@ type internal AssertionVisitor(expectedPrefix: string, expected: obj, actualPref
 
   let filter (node: DiffNode) =
     (node.IsRootNode && not node.HasChanges) || (node.HasChanges && not node.HasChildren)
-
 
   member __.Diff = translator.Translate()
 
