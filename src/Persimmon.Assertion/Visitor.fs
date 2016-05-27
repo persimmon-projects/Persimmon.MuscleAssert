@@ -7,7 +7,15 @@ open FSharp.Reflection
 open FSharp.Object.Diff
 open FSharp.Object.Diff.Dictionary
 
+type private Difference = {
+  Node: DiffNode
+  Base: obj
+  Modified: obj
+}
+
 type private Translator(subPrefix: string, addPrefix: string) =
+
+  let diff = ResizeArray<Difference>()
 
   let prefix p (o: obj) = String.indent 1 p + " " + String.toSingleLineString o
   let sub (o: obj) = prefix subPrefix o
@@ -57,7 +65,7 @@ type private Translator(subPrefix: string, addPrefix: string) =
       else
         translateUnion node base_ modified
 
-  member __.Translate(node: DiffNode, base_: obj, modified: obj) =
+  let translate (node: DiffNode) (base_: obj) (modified: obj) =
     match node.State with
     | Changed -> translateChange node base_ modified
     | Added ->
@@ -72,6 +80,47 @@ type private Translator(subPrefix: string, addPrefix: string) =
       ]
     | _ -> []
 
+  member __.Add(node: DiffNode, base_: obj, modified: obj) =
+    match node.State with
+    | Changed | Added | Removed -> diff.Add({ Node = node; Base = base_; Modified = modified })
+    | _ -> ()
+
+  member __.Translate() =
+    diff
+    |> Seq.groupBy (fun x -> x.Node.Path.ToString())
+    |> Seq.collect (fun (_, ds) ->
+      match List.ofSeq ds with
+      | [x] -> [x]
+      | [x; y] ->
+        match (x.Node.State, y.Node.State) with
+        | (Added, Removed) ->
+          if x.Modified = y.Base then []
+          else
+            x.Node.State <- Changed
+            y.Node.State <- Changed
+            [{ x with Base = y.Base }]
+        | (Removed, Added) ->
+          if x.Base = y.Modified then []
+          else
+            x.Node.State <- Changed
+            y.Node.State <- Changed
+            [{ x with Modified = y.Modified }]
+        | (Changed, Changed) ->
+          let b = if x.Base <> null then x.Base else y.Base
+          let m = if x.Modified <> null then x.Modified else y.Modified
+          [
+            {
+              Node = x.Node
+              Base = b
+              Modified = m
+            }
+          ]
+        | _ -> [x; y]
+      | _ -> []
+    )
+    |> Seq.collect (fun x -> translate x.Node x.Base x.Modified)
+    |> String.concat Environment.NewLine
+
 type CustomAssertionVisitor =
   inherit NodeVisitor
   abstract member Diff: string
@@ -79,20 +128,15 @@ type CustomAssertionVisitor =
 [<Sealed>]
 type internal AssertionVisitor(subPrefix: string, addPrefix: string, working: obj, base_: obj) =
 
-  let diff = ResizeArray<string>()
   let translator = Translator(subPrefix, addPrefix)
 
   let filter (node: DiffNode) =
     (node.IsRootNode && not node.HasChanges) || (node.HasChanges && not node.HasChildren)
 
   let dumpDiff (node: DiffNode) (base_: obj) (modified: obj) =
-    let ds =
-      translator.Translate(node, node.CanonicalGet(base_), node.CanonicalGet(modified))
-    diff.AddRange(ds)
+    translator.Add(node, node.CanonicalGet(base_), node.CanonicalGet(modified))
 
-  member __.Diff =
-    diff
-    |> String.concat Environment.NewLine
+  member __.Diff = translator.Translate()
 
   interface CustomAssertionVisitor with
     member this.Diff = this.Diff

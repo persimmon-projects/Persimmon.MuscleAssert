@@ -61,8 +61,8 @@ let ``dump diff record value`` = test ({ A = 0 }, { A = 1 }, ["/A"; "  expected 
 let ``dump diff list`` = parameterize {
   source [
     ([], [0], ["/[0]"; "  actual 0"])
-    ([0], [2], ["/[0]"; "  actual 2"; "/[0]"; "  expected 0"])
-    ([0; 1; 3], [0; 2; 3], ["/[1]"; "  actual 2"; "/[1]"; "  expected 1"])
+    ([0], [2], ["/[0]"; "  expected 0"; "  actual 2"])
+    ([0; 1; 3], [0; 2; 3], ["/[1]"; "  expected 1"; "  actual 2"])
   ]
   run test
 }
@@ -70,8 +70,8 @@ let ``dump diff list`` = parameterize {
 let ``dump diff array`` = parameterize {
   source [
     ([||], [|1|], ["/[0]"; "  actual 1"])
-    ([|1|], [|2|], ["/[0]"; "  actual 2"; "/[0]"; "  expected 1"])
-    ([|0; 1; 3|], [|0; 2; 3|], ["/[1]"; "  actual 2"; "/[1]"; "  expected 1"])
+    ([|1|], [|2|], ["/[0]"; "  expected 1"; "  actual 2"])
+    ([|0; 1; 3|], [|0; 2; 3|], ["/[1]"; "  expected 1"; "  actual 2"])
   ]
   run test
 }
@@ -121,8 +121,8 @@ let ``dump diff Dictionary`` = parameterize {
 module Nested =
 
   type TestRecord = {
-    A: string list
-    B: string
+    X: string list
+    Y: string
   }
 
   type TestDU =
@@ -131,9 +131,11 @@ module Nested =
 
   let ``dump diff record value`` = parameterize {
     source [
-      ({ A = ["a"]; B = "" }, { A = ["b"]; B = "" }, ["/A[0]"; "  actual b"; "/A[0]"; "  expected a"])
+      ({ X = ["a"]; Y = "" }, { X = ["b"]; Y = "" }, ["/X[0]"; "  expected a"; "  actual b"])
     ]
     run test
   }
 
-  let ``dump diff DU`` = test (B { A = []; B = "a" }, B { A = []; B = "b" }, ["/Item/B"; "  expected a"; "  actual b"])
+  let ``dump diff DU`` = test (B { X = []; Y = "a" }, B { X = []; Y = "b" }, ["/Item/Y"; "  expected a"; "  actual b"])
+
+  let ``dump diff list`` = test ([ { A = 1 } ], [ { A = 2 } ], ["/[0]/A"; "  expected 1"; "  actual 2"])
