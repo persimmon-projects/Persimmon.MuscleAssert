@@ -17,7 +17,7 @@ type Assert(differ: ObjectDiffer, visitor: CustomAssertionVisitor) =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Assert =
 
-  let private differ =
+  let internal differ =
     ObjectDifferBuilder.StartBuilding()
       .Comparison.OfPrimitiveTypes()
       .ToTreatDefaultValuesAs(Assigned)
@@ -25,4 +25,4 @@ module Assert =
       .Build()
 
   let equals (a: 'T) (b: 'T) =
-    Assert(differ, AssertionVisitor(b, a)).equals a b
+    Assert(differ, AssertionVisitor("expected", "actual", b, a)).equals a b

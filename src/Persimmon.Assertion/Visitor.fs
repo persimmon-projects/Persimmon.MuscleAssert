@@ -7,10 +7,11 @@ open FSharp.Reflection
 open FSharp.Object.Diff
 open FSharp.Object.Diff.Dictionary
 
-module private Translator =
+type private Translator(subPrefix: string, addPrefix: string) =
 
-  let sub (o: obj) = String.indent 1 "- " + String.toSingleLineString o
-  let add (o: obj) = String.indent 1 "+ " + String.toSingleLineString o
+  let prefix p (o: obj) = String.indent 1 p + " " + String.toSingleLineString o
+  let sub (o: obj) = prefix subPrefix o
+  let add (o: obj) = prefix addPrefix o
 
   let unionTag (cases: UnionCaseInfo []) typ tag =
     let info = cases |> Array.find (fun x -> x.Tag = tag)
@@ -56,7 +57,7 @@ module private Translator =
       else
         translateUnion node base_ modified
 
-  let translate (node: DiffNode) (base_: obj) (modified: obj) =
+  member __.Translate(node: DiffNode, base_: obj, modified: obj) =
     match node.State with
     | Changed -> translateChange node base_ modified
     | Added ->
@@ -76,16 +77,17 @@ type CustomAssertionVisitor =
   abstract member Diff: string
 
 [<Sealed>]
-type internal AssertionVisitor(working: obj, base_: obj) =
+type internal AssertionVisitor(subPrefix: string, addPrefix: string, working: obj, base_: obj) =
 
   let diff = ResizeArray<string>()
+  let translator = Translator(subPrefix, addPrefix)
 
   let filter (node: DiffNode) =
     (node.IsRootNode && not node.HasChanges) || (node.HasChanges && not node.HasChildren)
 
   let dumpDiff (node: DiffNode) (base_: obj) (modified: obj) =
     let ds =
-      Translator.translate node (node.CanonicalGet(base_)) (node.CanonicalGet(modified))
+      translator.Translate(node, node.CanonicalGet(base_), node.CanonicalGet(modified))
     diff.AddRange(ds)
 
   member __.Diff =
