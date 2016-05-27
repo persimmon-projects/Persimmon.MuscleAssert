@@ -51,6 +51,7 @@ let ``dump diff primitive value`` = test (0, 1, ["."; expected 0; actual 1])
 let ``dump diff string`` = parameterize {
   source [
     ("", "a", ["."; expected ""; actual "a"])
+    (null, "a", ["."; "  actual a"])
     ("a", "b", ["."; expected "a"; actual "b"])
     ("aaa", "aba", ["."; expected "aaa"; actual "aba"])
   ]
@@ -63,7 +64,8 @@ let ``dump diff record value`` = test ({ A = 0 }, { A = 1 }, [".A"; expected 0; 
 
 let ``dump diff list`` = parameterize {
   source [
-    ([], [0], [".[0]"; "  actual 0"])
+    ([], [1], [".[0]"; "  actual 1"])
+    ([1], [], [".[0]"; "  expected 1"])
     ([0], [2], [".[0]"; expected 0; actual 2])
     ([0; 1; 3], [0; 2; 3], [".[1]"; expected 1; actual 2])
   ]
@@ -73,6 +75,7 @@ let ``dump diff list`` = parameterize {
 let ``dump diff array`` = parameterize {
   source [
     ([||], [|1|], [".[0]"; "  actual 1"])
+    ([|1|], [||], [".[0]"; "  expected 1"])
     ([|1|], [|2|], [".[0]"; expected 1; actual 2])
     ([|0; 1; 3|], [|0; 2; 3|], [".[1]"; expected 1; actual 2])
   ]
@@ -93,10 +96,11 @@ let ``dump diff DU`` = parameterize {
 
 let ``dump diff Map`` = parameterize {
   source [
-    (Map.empty, Map.empty |> Map.add 1 0, [".{1}"; "  actual 0"])
-    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 1 1, [".{1}"; expected 0; actual 1])
-    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 1 0 |> Map.add 2 1, [".{2}"; "  actual 1"])
-    (Map.empty |> Map.add 1 0, Map.empty |> Map.add 2 1, [".{2}"; "  actual 1"; ".{1}"; "  expected 0"])
+    (Map.empty, Map.ofList [(1, 0)], [".{1}"; "  actual 0"])
+    (Map.ofList [(1, 0)], Map.empty, [".{1}"; "  expected 0"])
+    (Map.ofList [(1, 0)], Map.ofList [(1, 1)], [".{1}"; expected 0; actual 1])
+    (Map.ofList [(1, 0)], Map.ofList [(1, 0); (2, 1)], [".{2}"; "  actual 1"])
+    (Map.ofList [(1, 0)], Map.ofList [(2, 1)], [".{2}"; "  actual 1"; ".{1}"; "  expected 0"])
   ]
   run test
 }
@@ -146,6 +150,14 @@ module Nested =
     source [
       ([ { X = [] ; Y = 1 } ], [ { X = []; Y = 2 } ], [".[0].Y"; expected 1; actual 2])
       ([ { X = ["a"; "B"]; Y = 1 } ], [ { X = ["A"; "B"]; Y = 1 } ], [".[0].X.[0]"; expected "a"; actual "A"])
+    ]
+    run test
+  }
+
+  let ``dump diff Map including list`` = parameterize {
+    source [
+      (Map.ofList [ (1, []) ], Map.ofList [ (1, [2]) ], [".{1}.[0]"; "  actual 2"])
+      (Map.ofList [ (1, [1]) ], Map.ofList [ (1, [2]) ], [".{1}.[0]"; expected 1; actual 2])
     ]
     run test
   }
