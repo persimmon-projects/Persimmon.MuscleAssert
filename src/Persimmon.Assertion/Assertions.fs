@@ -7,10 +7,10 @@ open FSharp.Object.Diff
 [<NoEquality; NoComparison>]
 type Assert(differ: ObjectDiffer, visitor: CustomAssertionVisitor) =
   
-  member __.equals (a: 'T) (b: 'T) =
-    if a = b then pass ()
+  member __.equals (expected: 'T) (actual: 'T) =
+    if expected = actual then pass ()
     else
-      let node = differ.Compare(b, a)
+      let node = differ.Compare(actual, expected)
       node.Visit(visitor)
       fail visitor.Diff
 
@@ -24,5 +24,5 @@ module Assert =
       .And()
       .Build()
 
-  let equals (a: 'T) (b: 'T) =
-    Assert(differ, AssertionVisitor("expected", a, "actual", b)).equals a b
+  let equals (expected: 'T) (actual: 'T) =
+    Assert(differ, AssertionVisitor("expected", expected, "actual", actual)).equals expected actual
