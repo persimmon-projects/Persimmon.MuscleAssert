@@ -141,6 +141,9 @@ let ``dump diff Dictionary`` = parameterize {
   run test
 }
 
+let ``System.Type dump only FullName`` =
+  test (typeof<int>, typeof<string>, [".FullName"; expected "System.Int32"; actual "System.String"])
+
 module Nested =
 
   type TestRecord = {
