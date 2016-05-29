@@ -1,3 +1,7 @@
+### 0.3.0-beta - May 29 2016
+* System.Type compares only FullName property
+* support seq and System.Collections.IEnumerable
+
 ### 0.2.1-beta - May 28 2016
 * fix equality check
 * justify bulleted items
