@@ -7,7 +7,7 @@ open FSharp.Object.Diff
 
 module IEnumerable =
 
-  let enumType = typeof<IEnumerable>
+  let private enumType = typeof<IEnumerable>
 
   [<RequireQualifiedAccess>]
   module Generic =
