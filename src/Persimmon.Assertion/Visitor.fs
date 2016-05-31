@@ -97,13 +97,13 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
       else
         translateUnion node expected actual
 
-  let translate (node: DiffNode) (expected: obj) (actal: obj) =
+  let translate (node: DiffNode) (expected: obj) (actual: obj) =
     match node.State with
-    | Changed -> translateChange node expected actal
+    | Changed -> translateChange node expected actual
     | Added ->
       [
         Path.toStr node.Path
-        appendOnlyActualPrefix actal
+        appendOnlyActualPrefix actual
       ]
     | Removed ->
       [
