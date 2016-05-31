@@ -60,14 +60,14 @@ module IEnumerableSyntax =
     | _ when IEnumerable.Generic.isSeq (o.GetType()) -> Some(SeqWrapper o)
     | _ -> None
 
-type SeqItemAccessor(referenceItem: obj, index: int option, identityStrategy: IdentityStrategy) =
+type IEnumerableItemAccessor(referenceItem: obj, index: int option, identityStrategy: IdentityStrategy) =
 
   let objectAsCollection: obj -> Choice<IEnumerableWrapper option, ArgumentException> = function
   | null -> Choice1Of2 None
   | IsIEnumerable e -> Choice1Of2(Some e)
   | o -> Choice2Of2(ArgumentException(o.GetType().FullName))
 
-  new(referenceItem) = SeqItemAccessor(referenceItem, None, EqualsIdentityStrategy :> IdentityStrategy)
+  new(referenceItem) = IEnumerableItemAccessor(referenceItem, None, EqualsIdentityStrategy :> IdentityStrategy)
 
   member __.Index = index
 
@@ -144,7 +144,7 @@ type IEnumerableDiffer(
   let compareItems (node: DiffNode) (instances: Instances) (items: (int * obj) seq) identityStrategy =
     items
     |> Seq.iter (fun (index, o) ->
-      let accessor = SeqItemAccessor(o, Some index, identityStrategy)
+      let accessor = IEnumerableItemAccessor(o, Some index, identityStrategy)
       differDispatcher.Dispatch(node, instances, accessor)
       |> ignore
     )
