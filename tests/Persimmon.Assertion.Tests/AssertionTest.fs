@@ -178,6 +178,7 @@ module Nested =
   type TestDU =
     | A
     | B of TestRecord
+    | C
 
   let ``dump diff record includeing list`` = parameterize {
     source [
@@ -201,6 +202,15 @@ module Nested =
     source [
       (Map.ofList [ (1, []) ], Map.ofList [ (1, [2]) ], [".{1}.[0]"; "  actual 2"])
       (Map.ofList [ (1, [1]) ], Map.ofList [ (1, [2]) ], [".{1}.[0]"; expected 1; actual 2])
+    ]
+    run test
+  }
+
+  let ``dump diff list includeing DU`` = parameterize {
+    source [
+      ([A; A], [A; C], [".[1]"; expected "TestDU.A"; actual "TestDU.C"])
+      ([A], [B { X = []; Y = 2 }], [".[0]"; expected "TestDU.A"; actual "TestDU.B"])
+      ([B { X = []; Y = 1 }], [B { X = []; Y = 2 }], [".[0].Item.Y"; expected 1; actual 2])
     ]
     run test
   }

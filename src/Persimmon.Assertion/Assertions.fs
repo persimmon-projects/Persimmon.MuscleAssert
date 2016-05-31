@@ -48,6 +48,11 @@ module Assert =
       .Register({ new DifferFactory with
         member __.CreateDiffer(_, _) = IEnumerableDiffer :> Differ
       })
+      .Differs
+      .Register({ new DifferFactory with
+        member __.CreateDiffer(dispatcher, service) =
+          DiscriminatedUnionDiffer(dispatcher, service, service, service, builder.Introspection :?> TypeInfoResolver) :> Differ
+      })
       .Build()
 
   let equals (expected: 'T) (actual: 'T) =

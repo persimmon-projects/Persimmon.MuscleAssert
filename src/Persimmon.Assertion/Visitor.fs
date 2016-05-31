@@ -61,21 +61,12 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
     info.Name
 
   let translateUnion (node: DiffNode) expected actual =
-    let typ = node.ParentNode.Type
-    let cases = FSharpType.GetUnionCases(typ)
-    if cases |> Array.exists (fun x -> node.PropertyName = "Is" + x.Name) then []
-    elif node.PropertyName = "Tag" then
-      [
-        Path.toStr node.ParentNode.Path
-        expected |> unbox<int> |> unionTag cases typ |> sprintf "%s.%s" typ.Name |> appendExpectedPrefix
-        actual |> unbox<int> |> unionTag cases typ |> sprintf "%s.%s" typ.Name |> appendActualPrefix
-      ]
-    else
-      [
-        Path.toStr node.Path
-        appendExpectedPrefix expected
-        appendActualPrefix actual
-      ]
+    [
+      if node.PropertyName = DU.Tag then node.ParentNode.Path else node.Path
+      |> Path.toStr
+      appendExpectedPrefix expected
+      appendActualPrefix actual
+    ]
 
   let translateChange (node: DiffNode) (expected: obj) (actual: obj) =
     match expected, actual with
@@ -148,35 +139,36 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
     |> Seq.groupBy (fun x -> Path.toStr x.Node.Path)
     |> Seq.collect (fun (_, ds) ->
       match List.ofSeq ds with
-      | [x] -> [x]
+      | [x] -> Seq.singleton x
       | [x; y] ->
         match (x.Node.State, y.Node.State) with
         | (Added, Removed) ->
-          if x.Actual = y.Expected then []
+          if x.Actual = y.Expected then Seq.empty
           else
             x.Node.State <- Changed
             y.Node.State <- Changed
-            [{ x with Expected = y.Expected }]
+            Seq.singleton { x with Expected = y.Expected }
         | (Removed, Added) ->
-          if x.Expected = y.Actual then []
+          if x.Expected = y.Actual then Seq.empty
           else
             x.Node.State <- Changed
             y.Node.State <- Changed
-            [{ x with Actual = y.Actual }]
+            Seq.singleton { x with Actual = y.Actual }
         | (Changed, Changed) ->
-          if x.Expected = y.Actual && x.Actual = y.Expected then []
+          if x.Expected = y.Actual && x.Actual = y.Expected then Seq.empty
           else
             let b = if x.Expected <> null then x.Expected else y.Expected
             let m = if x.Actual <> null then x.Actual else y.Actual
-            [
+            Seq.singleton
               {
                 Node = x.Node
                 Expected = b
                 Actual = m
               }
-            ]
-        | _ -> [x; y]
-      | _ -> []
+        | _ -> seq [x; y]
+      | xs ->
+        xs
+        |> Seq.distinctBy (fun x -> (Path.toStr x.Node.Path, x.Node.State))
     )
     |> Seq.collect (fun x -> translate x.Node x.Expected x.Actual)
     |> fun xs -> Seq.append xs ignored
