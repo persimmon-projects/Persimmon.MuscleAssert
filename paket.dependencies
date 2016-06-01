@@ -2,7 +2,7 @@ source https://api.nuget.org/v3/index.json
 source https://www.nuget.org/api/v2/
 
 nuget Persimmon >= 1.1.0
-nuget FSharp.Object.Diff >= 0.6.0
+nuget FSharp.Object.Diff >= 0.6.1
 
 group Build
   source https://api.nuget.org/v3/index.json
