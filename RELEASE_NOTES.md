@@ -1,3 +1,7 @@
+### 0.4.0-beta - June 1 2016
+* support seq and System.Collections.IEnumerable(and show ignoring message)
+* ignore DU property if union case does not equal
+
 ### 0.3.0-beta - May 29 2016
 * System.Type compares only FullName property
 * support seq and System.Collections.IEnumerable
