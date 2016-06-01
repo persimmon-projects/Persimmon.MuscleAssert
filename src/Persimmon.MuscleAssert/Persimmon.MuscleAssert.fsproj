@@ -7,12 +7,12 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>42384685-8f4f-45d7-a305-0528113e1c19</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Persimmon.Assertion</RootNamespace>
-    <AssemblyName>Persimmon.Assertion</AssemblyName>
+    <RootNamespace>Persimmon.MuscleAssert</RootNamespace>
+    <AssemblyName>Persimmon.MuscleAssert</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>2.3.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>Persimmon.Assertion</Name>
+    <Name>Persimmon.MuscleAssert</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +22,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Persimmon.Assertion.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Persimmon.MuscleAssert.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Persimmon.Assertion.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Persimmon.MuscleAssert.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -56,7 +56,6 @@
     <Compile Include="DiscriminatedUnion.fs" />
     <Compile Include="Visitor.fs" />
     <Compile Include="Assertions.fs" />
-    <Compile Include="Syntax.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -65,7 +64,7 @@
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

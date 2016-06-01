@@ -7,12 +7,12 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>a9c58c6b-b0d5-429b-a365-197505e2b610</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Persimmon.Assertion.Tests</RootNamespace>
-    <AssemblyName>Persimmon.Assertion.Tests</AssemblyName>
+    <RootNamespace>Persimmon.MuscleAssert.Tests</RootNamespace>
+    <AssemblyName>Persimmon.MuscleAssert.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>Persimmon.Assertion.Tests</Name>
+    <Name>Persimmon.MuscleAssert.Tests</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +22,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Persimmon.Assertion.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Persimmon.MuscleAssert.Tests.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Persimmon.Assertion.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Persimmon.MuscleAssert.Tests.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -49,7 +49,7 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
@@ -70,8 +70,8 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <ProjectReference Include="..\..\src\Persimmon.Assertion\Persimmon.Assertion.fsproj">
-      <Name>Persimmon.Assertion</Name>
+    <ProjectReference Include="..\..\src\Persimmon.MuscleAssert\Persimmon.MuscleAssert.fsproj">
+      <Name>Persimmon.MuscleAssert</Name>
       <Project>{42384685-8f4f-45d7-a305-0528113e1c19}</Project>
       <Private>True</Private>
     </ProjectReference>

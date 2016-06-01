@@ -1,4 +1,4 @@
-﻿module Persimmon.Assertion.Tests.AssertionTest
+﻿module Persimmon.MuscleAssert.Tests.AssertTest
 
 open System
 open System.Collections.Generic
@@ -19,7 +19,7 @@ type TestDU =
 
 let ``pass seq test`` = test {
   do!
-    Assert.equals (seq { 0 .. 2 }) (seq { 0 .. 2})
+    MuscleAssert.assertEquals (seq { 0 .. 2 }) (seq { 0 .. 2})
     |> assertEquals (Passed ())
 }
 
@@ -30,7 +30,7 @@ let ``prefix check`` = test {
     |> Violated
     |> NotPassed
   do!
-    0 === 1
+    MuscleAssert.(===) 0 1
     |> assertEquals msg
 }
 
@@ -43,7 +43,7 @@ module Helper =
       |> Violated
       |> NotPassed
     do!
-      Assert.equals expected actual
+      MuscleAssert.assertEquals expected actual
       |> assertEquals msg
   }
 

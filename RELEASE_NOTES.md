@@ -1,3 +1,6 @@
+### 0.5.0 - June 1 2016
+* rename project
+
 ### 0.4.0-beta - June 1 2016
 * support seq and System.Collections.IEnumerable(and show ignoring message)
 * ignore DU property if union case does not equal

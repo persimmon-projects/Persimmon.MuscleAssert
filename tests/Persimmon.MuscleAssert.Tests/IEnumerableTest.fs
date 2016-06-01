@@ -1,4 +1,4 @@
-﻿module Persimmon.Assertion.Tests.IEnumerableTest
+﻿module Persimmon.MuscleAssert.Tests.IEnumerableTest
 
 open System.Collections
 open Persimmon

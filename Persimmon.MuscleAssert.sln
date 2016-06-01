@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Assertion", "src\Persimmon.Assertion\Persimmon.Assertion.fsproj", "{42384685-8F4F-45D7-A305-0528113E1C19}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.MuscleAssert", "src\Persimmon.MuscleAssert\Persimmon.MuscleAssert.fsproj", "{42384685-8F4F-45D7-A305-0528113E1C19}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Assertion.Tests", "tests\Persimmon.Assertion.Tests\Persimmon.Assertion.Tests.fsproj", "{A9C58C6B-B0D5-429B-A365-197505E2B610}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.MuscleAssert.Tests", "tests\Persimmon.MuscleAssert.Tests\Persimmon.MuscleAssert.Tests.fsproj", "{A9C58C6B-B0D5-429B-A365-197505E2B610}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

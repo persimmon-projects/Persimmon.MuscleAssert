@@ -1,4 +1,4 @@
-﻿module Persimmon.Assertion.Tests.IgnoredPropertyTest
+﻿module Persimmon.MuscleAssert.Tests.IgnoredPropertyTest
 
 open System
 open Persimmon
@@ -10,7 +10,7 @@ type TestRecord = {
 }
 
 let ``ignore seq`` = test {
-  match Assert.equals Seq.empty (seq { yield 1; yield 2 }) with
+  match MuscleAssert.assertEquals Seq.empty (seq { yield 1; yield 2 }) with
   | NotPassed (Violated msg) ->
     let msg = msg.Split([|Environment.NewLine|], StringSplitOptions.None)
     do! assertPred (msg.Length = 3)
@@ -19,7 +19,7 @@ let ``ignore seq`` = test {
 }
 
 let ``ignore nested seq`` = test {
-  match Assert.equals { A = 0; B = Seq.empty } { A = 0; B = seq { yield 1; yield 2 } } with
+  match MuscleAssert.assertEquals { A = 0; B = Seq.empty } { A = 0; B = seq { yield 1; yield 2 } } with
   | NotPassed (Violated msg) ->
     let msg = msg.Split([|Environment.NewLine|], StringSplitOptions.None)
     do! assertPred (msg.Length = 3)
@@ -28,7 +28,7 @@ let ``ignore nested seq`` = test {
 }
 
 let ``ignore nested seq included list`` = test {
-  match Assert.equals [{ A = 0; B = Seq.empty }] [{ A = 0; B = seq { yield 1; yield 2 } }] with
+  match MuscleAssert.assertEquals [{ A = 0; B = Seq.empty }] [{ A = 0; B = seq { yield 1; yield 2 } }] with
   | NotPassed (Violated msg) ->
     let msg = msg.Split([|Environment.NewLine|], StringSplitOptions.None)
     do! assertPred (msg.Length = 3)

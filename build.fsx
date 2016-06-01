@@ -12,7 +12,7 @@ open System.IO
 open SourceLink
 #endif
 
-let project = "Persimmon.Assertion"
+let project = "Persimmon.MuscleAssert"
 
 // Short summary of the project
 // (used as description in AssemblyInfo and as a short summary for NuGet package)
@@ -29,7 +29,7 @@ let authors = [ "bleis-tift, Gab-km, pocketberserker" ]
 let tags = "F#, fsharp, testing"
 
 // File system information
-let solutionFile  = "Persimmon.Assertion.sln"
+let solutionFile  = "Persimmon.MuscleAssert.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
 let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
@@ -40,7 +40,7 @@ let gitOwner = "persimmon-projects"
 let gitHome = "https://github.com/" + gitOwner
 
 // The name of the project on GitHub
-let gitName = "Persimmon.Assertion"
+let gitName = "Persimmon.MuscleAssert"
 
 // The url for the raw files hosted
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/persimmon-projects"
