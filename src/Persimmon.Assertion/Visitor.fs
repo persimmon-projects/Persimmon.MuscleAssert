@@ -37,7 +37,7 @@ module private Path =
 
 type private Translator(expectedPrefix: string, actualPrefix: string) =
 
-  let diff = ResizeArray<Difference>()
+  let diffs = ResizeArray<Difference>()
   let ignored = ResizeArray<DiffNode>()
   
   let maxShowableSeqProperties = 10
@@ -108,10 +108,9 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
 
   member __.Add(node: DiffNode, expected: obj, actual: obj) =
     match node.State with
-    | Changed | Added | Removed -> diff.Add({ Node = node; Expected = expected; Actual = actual })
+    | Changed | Added | Removed -> diffs.Add({ Node = node; Expected = expected; Actual = actual })
     | Ignored -> ignored.Add(node)
     | _ -> ()
-
 
   member __.Translate() =
     let ignored =
@@ -135,7 +134,7 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
           else
             yield! paths
         }
-    diff
+    diffs
     |> Seq.groupBy (fun x -> Path.toStr x.Node.Path)
     |> Seq.collect (fun (_, ds) ->
       match List.ofSeq ds with
