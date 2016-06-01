@@ -88,6 +88,16 @@ let ``dump diff array`` = parameterize {
   run test
 }
 
+let ``dump diff Set`` = parameterize {
+  source [
+    (Set.empty, Set.ofList [1], [".[0]"; "  actual 1"])
+    (Set.ofList [1], Set.empty, [".[0]"; "  expected 1"])
+    (Set.ofList [1], Set.ofList [2], [".[0]"; expected 1; actual 2])
+    (Set.ofList [0; 1; 3], Set.ofList [0; 2; 3], [".[1]"; expected 1; actual 2])
+  ]
+  run test
+}
+
 let ``dump diff DU`` = parameterize {
   source [
     (A, B 0, [".";  expected "TestDU.A"; actual "TestDU.B"])
