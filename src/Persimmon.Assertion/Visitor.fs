@@ -38,6 +38,9 @@ module private Path =
 type private Translator(expectedPrefix: string, actualPrefix: string) =
 
   let diff = ResizeArray<Difference>()
+  let ignored = ResizeArray<DiffNode>()
+  
+  let maxShowableSeqProperties = 10
 
   let fixedExpectedPrefix, fixedActualPrefix =
     let el = String.length expectedPrefix
@@ -115,9 +118,32 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
   member __.Add(node: DiffNode, expected: obj, actual: obj) =
     match node.State with
     | Changed | Added | Removed -> diff.Add({ Node = node; Expected = expected; Actual = actual })
+    | Ignored -> ignored.Add(node)
     | _ -> ()
 
+
   member __.Translate() =
+    let ignored =
+      let paths =
+        ignored
+        |> Seq.map (fun x -> Path.toStr x.Path |> String.indent 1)
+        |> Seq.distinct
+      if Seq.isEmpty paths then paths
+      else
+        seq {
+          yield "seq<'T> or System.Collection.IEnumerable properties do not verify."
+          yield "Please apply Seq.toList and assert."
+          if Seq.length paths > maxShowableSeqProperties then
+            yield! Seq.take maxShowableSeqProperties paths
+            yield
+              paths
+              |> Seq.skip maxShowableSeqProperties
+              |> Seq.length
+              |> sprintf "and more %d properties."
+              |> String.indent 1
+          else
+            yield! paths
+        }
     diff
     |> Seq.groupBy (fun x -> Path.toStr x.Node.Path)
     |> Seq.collect (fun (_, ds) ->
@@ -153,11 +179,29 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
       | _ -> []
     )
     |> Seq.collect (fun x -> translate x.Node x.Expected x.Actual)
+    |> fun xs -> Seq.append xs ignored
     |> String.concat Environment.NewLine
 
 type CustomAssertionVisitor =
   inherit NodeVisitor
   abstract member Diff: string
+
+module internal Filter =
+
+  let private includedPropertyNames = [
+    "FullName"
+  ]
+  let typ = typeof<Type>
+  let filteredTypeProperties =
+    typ.GetProperties()
+    |> Array.choose (fun x -> if List.exists ((=) x.Name) includedPropertyNames then None else Some x.Name)
+  let runtimeType = typ.GetType()
+  let filteredRuntimeTypeProperties =
+    runtimeType.GetProperties()
+    |> Array.choose (fun x -> if List.exists ((=) x.Name) includedPropertyNames then None else Some x.Name)
+
+  let isFilteredProperties t name =
+    t = typ && Array.exists ((=) name) filteredTypeProperties || t = runtimeType && Array.exists ((=) name) filteredRuntimeTypeProperties
 
 [<Sealed>]
 type internal AssertionVisitor(expectedPrefix: string, expected: obj, actualPrefix: string, actual: obj) =
@@ -165,7 +209,9 @@ type internal AssertionVisitor(expectedPrefix: string, expected: obj, actualPref
   let translator = Translator(expectedPrefix, actualPrefix)
 
   let filter (node: DiffNode) =
-    (node.IsRootNode && not node.HasChanges) || (node.HasChanges && not node.HasChildren)
+    node.IsRootNode && not node.HasChanges
+    || node.HasChanges && not node.HasChildren
+    || not node.IsRootNode && not (Filter.isFilteredProperties node.ParentNode.Type node.PropertyName) && not node.HasChildren
 
   member __.Diff = translator.Translate()
 

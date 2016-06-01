@@ -34,6 +34,40 @@ let ``prefix check`` = test {
     |> assertEquals msg
 }
 
+module IgnoredProperty =
+
+  type TestRecord = {
+    A: int
+    B: int seq
+  }
+
+  let ``ignore seq`` = test {
+    match Assert.equals Seq.empty (seq { yield 1; yield 2 }) with
+    | NotPassed (Violated msg) ->
+      let msg = msg.Split([|Environment.NewLine|], StringSplitOptions.None)
+      do! assertPred (msg.Length = 3)
+      do! assertEquals "  ." msg.[2]
+    | a -> do! sprintf "expected NotPassed(Violated msg), but was %A" a |> fail
+  }
+
+  let ``ignore nested seq`` = test {
+    match Assert.equals { A = 0; B = Seq.empty } { A = 0; B = seq { yield 1; yield 2 } } with
+    | NotPassed (Violated msg) ->
+      let msg = msg.Split([|Environment.NewLine|], StringSplitOptions.None)
+      do! assertPred (msg.Length = 3)
+      do! assertEquals "  .B" msg.[2]
+    | a -> do! sprintf "expected NotPassed(Violated msg), but was %A" a |> fail
+  }
+
+  let ``ignore nested seq included list`` = test {
+    match Assert.equals [{ A = 0; B = Seq.empty }] [{ A = 0; B = seq { yield 1; yield 2 } }] with
+    | NotPassed (Violated msg) ->
+      let msg = msg.Split([|Environment.NewLine|], StringSplitOptions.None)
+      do! assertPred (msg.Length = 3)
+      do! assertEquals "  .[0].B" msg.[2]
+    | a -> do! sprintf "expected NotPassed(Violated msg), but was %A" a |> fail
+  }
+
 module Helper =
 
   let test (expected, actual, message) = test {
@@ -84,16 +118,6 @@ let ``dump diff array`` = parameterize {
     ([|1|], [||], [".[0]"; "  expected 1"])
     ([|1|], [|2|], [".[0]"; expected 1; actual 2])
     ([|0; 1; 3|], [|0; 2; 3|], [".[1]"; expected 1; actual 2])
-  ]
-  run test
-}
-
-let ``dump diff seq`` = parameterize {
-  source [
-    (Seq.empty, Seq.singleton 1, [".[0]"; "  actual 1"])
-    (Seq.singleton 1, Seq.empty, [".[0]"; "  expected 1"])
-    (Seq.singleton 1, Seq.singleton 2, [".[0]"; expected 1; actual 2])
-    (seq { yield 0; yield 1; yield 3 }, seq { yield 0; yield 2; yield 3 }, [".[1]"; expected 1; actual 2])
   ]
   run test
 }

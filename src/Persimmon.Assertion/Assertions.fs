@@ -22,17 +22,7 @@ type Assert(differ: ObjectDiffer, visitor: CustomAssertionVisitor) =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Assert =
 
-  let private includedPropertyNames = [
-    "FullName"
-  ]
-  let private typ = typeof<Type>
-  let private filteredTypeProperties =
-    typ.GetProperties()
-    |> Array.choose (fun x -> if List.exists ((=) x.Name) includedPropertyNames then None else Some x.Name)
-  let private runtimeType = typ.GetType()
-  let private filteredRuntimeTypeProperties =
-    runtimeType.GetProperties()
-    |> Array.choose (fun x -> if List.exists ((=) x.Name) includedPropertyNames then None else Some x.Name)
+  open Filter
 
   let internal differ =
     let builder =
@@ -44,6 +34,9 @@ module Assert =
         .Exclude()
         .PropertyNameOfType(typ, filteredTypeProperties)
         .And()
+        .Filtering
+        .ReturnNodesWithState(Ignored)
+        .And()
     // System.RuntimeType does not exist mono.
     if typ <> runtimeType then
       builder.Inclusion
@@ -53,8 +46,7 @@ module Assert =
     builder
       .Differs
       .Register({ new DifferFactory with
-        member __.CreateDiffer(dispatcher, service) =
-          IEnumerableDiffer(dispatcher, service, builder.Identity) :> Differ
+        member __.CreateDiffer(_, _) = IEnumerableDiffer :> Differ
       })
       .Build()
 
