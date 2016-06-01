@@ -60,6 +60,7 @@
     <None Include="paket.references" />
     <Compile Include="IEnumerableTest.fs" />
     <Compile Include="AssertionTest.fs" />
+    <Compile Include="IgnoredPropertyTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
