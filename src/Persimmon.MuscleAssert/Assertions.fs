@@ -48,6 +48,11 @@ let internal differ =
     .Differs
     .Register({ new DifferFactory with
       member __.CreateDiffer(dispatcher, service) =
+        TupleDiffer(dispatcher, service, service, service, builder.Introspection :?> TypeInfoResolver) :> Differ
+    })
+    .Differs
+    .Register({ new DifferFactory with
+      member __.CreateDiffer(dispatcher, service) =
         DiscriminatedUnionDiffer(dispatcher, service, service, service, builder.Introspection :?> TypeInfoResolver) :> Differ
     })
     .Build()

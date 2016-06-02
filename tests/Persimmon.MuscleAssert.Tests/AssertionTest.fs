@@ -64,7 +64,16 @@ let ``dump diff string`` = parameterize {
   run test
 }
 
-let ``dump diff tuple`` = test ((0, 0), (1, 0), [".Item1"; expected 0; actual 1])
+let ``dump diff tuple`` = parameterize {
+  source [
+    (box (0, 0), box (1, 0), [".1"; expected 0; actual 1])
+    (box (0, 0, 0), box (1, 0, 2), [".1"; expected 0; actual 1; ".3"; expected 0; actual 2])
+    (box (0, 0, 0, 0, 0, 0, 0, 0), box (0, 0, 0, 0, 0, 0, 0, 1), [".8"; expected 0; actual 1])
+    (box (0, 0, 0, 0, 0, 0, 0, 0, 0), box (0, 0, 0, 0, 0, 0, 0, 0, 1), [".9"; expected 0; actual 1])
+    (box (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), box (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1), [".16"; expected 0; actual 1])
+  ]
+  run test
+}
 
 let ``dump diff record value`` = test ({ A = 0 }, { A = 1 }, [".A"; expected 0; actual 1])
 
@@ -155,6 +164,7 @@ module Nested =
     | A
     | B of TestRecord
     | C
+    | D of (int * string)
 
   let ``dump diff record includeing list`` = parameterize {
     source [
@@ -165,6 +175,9 @@ module Nested =
 
   let ``dump diff DU includeing record`` =
     test (B { X = []; Y = 1 }, B { X = []; Y = 2 }, [".Item.Y"; expected 1; actual 2])
+
+  let ``dump diff DU includeing tuple`` =
+    test (D (0, "a"), D (0, "b"), [".2"; expected "a"; actual "b"])
 
   let ``dump diff list including record`` = parameterize {
     source [
@@ -187,6 +200,15 @@ module Nested =
       ([A; A], [A; C], [".[1]"; expected "TestDU.A"; actual "TestDU.C"])
       ([A], [B { X = []; Y = 2 }], [".[0]"; expected "TestDU.A"; actual "TestDU.B"])
       ([B { X = []; Y = 1 }], [B { X = []; Y = 2 }], [".[0].Item.Y"; expected 1; actual 2])
+    ]
+    run test
+  }
+
+  let ``dump diff tuple`` = parameterize {
+    source [
+      ([box (0, 0)], [box (1, 0)], [".[0].1"; expected 0; actual 1])
+      ([box (0, 0); box (0, 0)], [box (0, 0); box (1, 0)], [".[1].1"; expected 0; actual 1])
+      ([box (0, 0, 0, 0, 0, 0, 0, 0)], [box (0, 0, 0, 0, 0, 0, 0, 1)], [".[0].8"; expected 0; actual 1])
     ]
     run test
   }

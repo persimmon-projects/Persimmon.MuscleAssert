@@ -18,21 +18,33 @@ module private Path =
   open System.Text
   open Printf
 
+  [<Literal>]
+  let NestedTupleArity = 8
+
   let toStr (path: NodePath) =
     let builder = StringBuilder()
-    let rec loop (previous: ElementSelector option) (selectors: ElementSelector list) =
+    let rec loop arity (previous: ElementSelector option) (selectors: ElementSelector list) =
       match previous, selectors with
+      | Some(:? TupleItemElementSelector), [] ->
+        bprintf builder ".%d" arity
+      | Some(:? RootElementSelector), [] ->
+        bprintf builder "."
       | _, [] -> ()
-      | _, x :: xs when (x :? RootElementSelector) ->
-        builder.Append(".") |> ignore
-        loop (Some x) xs
-      | Some p, x :: xs when (p :? RootElementSelector) ->
-        bprintf builder "%O" x
-        loop (Some x) xs
+      | Some(:? RootElementSelector), x::xs ->
+        loop arity None (x :: xs)
+      | None, (:? RootElementSelector as p)::xs ->
+        loop arity (Some (p :> ElementSelector)) xs
+      | Some(:? TupleItemElementSelector), (:? TupleItemElementSelector as x) :: xs ->
+        loop (x.Arity + arity - if arity >= NestedTupleArity then 1 else 0) (Some(x :> ElementSelector)) xs
+      | Some(:? TupleItemElementSelector as p), x :: xs ->
+        bprintf builder ".%d" arity
+        loop 0 None (x :: xs)
+      | _, (:? TupleItemElementSelector as x) :: xs ->
+        loop x.Arity (Some(x :> ElementSelector)) xs
       | _, x :: xs ->
         bprintf builder ".%O" x
-        loop (Some x) xs
-    loop None path.ElementSelectors
+        loop arity (Some x) xs
+    loop 0 None path.ElementSelectors
     builder.ToString()
 
 type private Translator(expectedPrefix: string, actualPrefix: string) =
