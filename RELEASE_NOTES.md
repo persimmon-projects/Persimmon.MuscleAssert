@@ -1,5 +1,7 @@
-### 0.5.0 - June 1 2016
+### 0.5.0 - June 3 2016
 * rename project
+* tuple property show only arity
+* trim prefix of DU property
 
 ### 0.4.0-beta - June 1 2016
 * support seq and System.Collections.IEnumerable(and show ignoring message)
