@@ -110,11 +110,12 @@ let ``dump diff Set`` = parameterize {
 let ``dump diff DU`` = parameterize {
   source [
     (A, B 0, [".";  expected "TestDU.A"; actual "TestDU.B"])
-    (B 0, B 1, [".Item"; expected 0; actual 1])
-    (C(0, 1), C(0, 2), [".Item2"; expected 1; actual 2])
+    (B 0, B 1, ["."; expected 0; actual 1])
+    (C(0, 1), C(0, 2), [".2"; expected 1; actual 2])
+    (C(1, 0), C(2, 0), [".1"; expected 1; actual 2])
     (D 0, D 1, [".value"; expected 0; actual 1])
     (B 0, E 1, ["."; expected "TestDU.B"; actual "TestDU.E"])
-    (F(B 0), F(B 1), [".Item.Item"; expected 0; actual 1])
+    (F(B 0), F(B 1), ["."; expected 0; actual 1])
   ]
   run test
 }
@@ -174,7 +175,7 @@ module Nested =
   }
 
   let ``dump diff DU includeing record`` =
-    test (B { X = []; Y = 1 }, B { X = []; Y = 2 }, [".Item.Y"; expected 1; actual 2])
+    test (B { X = []; Y = 1 }, B { X = []; Y = 2 }, [".Y"; expected 1; actual 2])
 
   let ``dump diff DU includeing tuple`` =
     test (D (0, "a"), D (0, "b"), [".2"; expected "a"; actual "b"])
@@ -199,7 +200,7 @@ module Nested =
     source [
       ([A; A], [A; C], [".[1]"; expected "TestDU.A"; actual "TestDU.C"])
       ([A], [B { X = []; Y = 2 }], [".[0]"; expected "TestDU.A"; actual "TestDU.B"])
-      ([B { X = []; Y = 1 }], [B { X = []; Y = 2 }], [".[0].Item.Y"; expected 1; actual 2])
+      ([B { X = []; Y = 1 }], [B { X = []; Y = 2 }], [".[0].Y"; expected 1; actual 2])
     ]
     run test
   }

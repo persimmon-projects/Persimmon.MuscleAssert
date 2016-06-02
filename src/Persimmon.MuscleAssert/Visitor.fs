@@ -29,6 +29,8 @@ module private Path =
         bprintf builder ".%d" arity
       | Some(:? RootElementSelector), [] ->
         bprintf builder "."
+      | Some(:? UnionCaseItemElementSelector as x), [] when String.IsNullOrEmpty x.HumanReadableString ->
+        bprintf builder "."
       | _, [] -> ()
       | Some(:? RootElementSelector), x::xs ->
         loop arity None (x :: xs)
@@ -41,6 +43,10 @@ module private Path =
         loop 0 None (x :: xs)
       | _, (:? TupleItemElementSelector as x) :: xs ->
         loop x.Arity (Some(x :> ElementSelector)) xs
+      | _, (:? UnionCaseItemElementSelector as x) :: xs ->
+        if String.IsNullOrEmpty x.HumanReadableString then ()
+        else bprintf builder ".%s" x.HumanReadableString
+        loop arity (Some(x :> ElementSelector)) xs
       | _, x :: xs ->
         bprintf builder ".%O" x
         loop arity (Some x) xs
