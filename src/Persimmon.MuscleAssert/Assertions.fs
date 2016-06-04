@@ -13,10 +13,15 @@ type CustomMuscleAssert(differ: ObjectDiffer, visitor: CustomAssertionVisitor) =
     else
       let node = differ.Compare(actual, expected)
       node.Visit(visitor)
-      let diff = visitor.Diff
-      if String.IsNullOrEmpty diff then
-        sprintf "Expect: %A%sActual: %A" expected Environment.NewLine actual
-      else diff
+      let result = visitor.Diff
+      if Seq.isEmpty result.Diff then
+        seq {
+          yield! result.Ignored
+          yield sprintf "Expect: %A" expected
+          yield sprintf "Actual: %A" actual
+        }
+      else Seq.append result.Diff result.Ignored
+      |> String.concat Environment.NewLine
       |> fail
 
 open Filter

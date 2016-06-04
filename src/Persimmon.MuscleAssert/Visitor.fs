@@ -53,6 +53,11 @@ module private Path =
     loop 0 None path.ElementSelectors
     builder.ToString()
 
+type TranslateResult = {
+  Diff: string seq
+  Ignored: string seq
+}
+
 type private Translator(expectedPrefix: string, actualPrefix: string) =
 
   let diffs = ResizeArray<Difference>()
@@ -188,12 +193,11 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
         |> Seq.distinctBy (fun x -> (Path.toStr x.Node.Path, x.Node.State))
     )
     |> Seq.collect (fun x -> translate x.Node x.Expected x.Actual)
-    |> fun xs -> Seq.append xs ignored
-    |> String.concat Environment.NewLine
+    |> fun xs -> { Diff = xs; Ignored = ignored }
 
 type CustomAssertionVisitor =
   inherit NodeVisitor
-  abstract member Diff: string
+  abstract member Diff: TranslateResult
 
 module internal Filter =
 
