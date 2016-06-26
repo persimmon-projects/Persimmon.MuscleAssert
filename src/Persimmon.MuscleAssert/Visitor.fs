@@ -6,6 +6,7 @@ open System.Collections.Generic
 open FSharp.Reflection
 open FSharp.Object.Diff
 open FSharp.Object.Diff.Dictionary
+open DiffMatchPatch
 
 type private Difference = {
   Node: DiffNode
@@ -83,14 +84,6 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
     let info = cases |> Array.find (fun x -> x.Tag = tag)
     info.Name
 
-  let translateUnion (node: DiffNode) expected actual =
-    [
-      if node.PropertyName = DU.Tag then node.ParentNode.Path else node.Path
-      |> Path.toStr
-      appendExpectedPrefix expected
-      appendActualPrefix actual
-    ]
-
   let translateChange (node: DiffNode) (expected: obj) (actual: obj) =
     match expected, actual with
     | null, null -> []
@@ -105,14 +98,24 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
         appendOnlyExpectedPrefix expected
       ]
     | _ ->
-      if node.IsRootNode ||  not <| FSharpType.IsUnion(node.ParentNode.Type) then
-        [
-          Path.toStr node.Path
-          appendExpectedPrefix expected
-          appendActualPrefix actual
-        ]
-      else
-        translateUnion node expected actual
+      seq {
+        yield
+          if not node.IsRootNode && FSharpType.IsUnion(node.ParentNode.Type) then
+            if node.PropertyName = DU.Tag then node.ParentNode.Path else node.Path
+          else node.Path
+          |> Path.toStr
+        yield appendExpectedPrefix expected
+        yield appendActualPrefix actual
+        if node.Type = typeof<string> then
+          let text1 = unbox<string> expected
+          let text2 = unbox<string> actual
+          let dmp = DiffMatchPatch.Default
+          let diffs = dmp.DiffMain(text1, text2, false)
+          dmp.DiffCleanupSemantic(diffs)
+          yield ""
+          yield dmp.PatchToText(dmp.PatchMake(text1, diffs))
+      }
+      |> Seq.toList
 
   let translate (node: DiffNode) (expected: obj) (actual: obj) =
     match node.State with

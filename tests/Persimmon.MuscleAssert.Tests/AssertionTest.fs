@@ -56,10 +56,10 @@ let ``dump diff primitive value`` = test (0, 1, ["."; expected 0; actual 1])
 
 let ``dump diff string`` = parameterize {
   source [
-    ("", "a", ["."; expected ""; actual "a"])
+    ("", "a", ["."; expected ""; actual "a"; ""; "@@ -0,0 +1 @@"; "+a"; ""])
     (null, "a", ["."; "  actual a"])
-    ("a", "b", ["."; expected "a"; actual "b"])
-    ("aaa", "aba", ["."; expected "aaa"; actual "aba"])
+    ("a", "b", ["."; expected "a"; actual "b"; ""; "@@ -1 +1 @@"; "-a"; "+b"; ""])
+    ("aaa", "aba", ["."; expected "aaa"; actual "aba"; ""; "@@ -1,3 +1,3 @@"; " a"; "-a"; "+b"; " a"; ""])
   ]
   run test
 }
@@ -152,7 +152,7 @@ let ``dump diff Dictionary`` = parameterize {
 }
 
 let ``System.Type dump only FullName`` =
-  test (typeof<int>, typeof<string>, [".FullName"; expected "System.Int32"; actual "System.String"])
+  test (typeof<int>, typeof<string>, [".FullName"; expected "System.Int32"; actual "System.String"; ""; "@@ -4,9 +4,10 @@"; " tem."; "-Int32"; "+String"; ""])
 
 module Nested =
 
@@ -169,7 +169,7 @@ module Nested =
 
   let ``dump diff record includeing list`` = parameterize {
     source [
-      ({ X = ["a"]; Y = 1 }, { X = ["b"]; Y = 1 }, [".X.[0]"; expected "a"; actual "b"])
+      ({ X = ["a"]; Y = 1 }, { X = ["b"]; Y = 1 }, [".X.[0]"; expected "a"; actual "b"; ""; "@@ -1 +1 @@"; "-a"; "+b"; ""])
     ]
     run test
   }
@@ -178,12 +178,12 @@ module Nested =
     test (B { X = []; Y = 1 }, B { X = []; Y = 2 }, [".Y"; expected 1; actual 2])
 
   let ``dump diff DU includeing tuple`` =
-    test (D (0, "a"), D (0, "b"), [".2"; expected "a"; actual "b"])
+    test (D (0, "a"), D (0, "b"), [".2"; expected "a"; actual "b"; ""; "@@ -1 +1 @@"; "-a"; "+b"; ""])
 
   let ``dump diff list including record`` = parameterize {
     source [
       ([ { X = [] ; Y = 1 } ], [ { X = []; Y = 2 } ], [".[0].Y"; expected 1; actual 2])
-      ([ { X = ["a"; "B"]; Y = 1 } ], [ { X = ["A"; "B"]; Y = 1 } ], [".[0].X.[0]"; expected "a"; actual "A"])
+      ([ { X = ["a"; "B"]; Y = 1 } ], [ { X = ["A"; "B"]; Y = 1 } ], [".[0].X.[0]"; expected "a"; actual "A"; ""; "@@ -1 +1 @@"; "-a"; "+A"; ""])
     ]
     run test
   }

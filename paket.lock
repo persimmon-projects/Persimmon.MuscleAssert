@@ -1,6 +1,7 @@
 NUGET
   remote: http://api.nuget.org/v3/index.json
   specs:
+    Diff.Match.Patch (1.1)
     FSharp.Object.Diff (0.6.1)
     Persimmon (1.1)
 
@@ -21,7 +22,7 @@ NUGET
       Microsoft.Bcl.Build (>= 1.0.14)
     NuGet.CommandLine (3.4.3)
     Octokit (0.19)
-      Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
+      Microsoft.Net.Http
     Persimmon.Console (1.1)
     SourceLink.Fake (1.1)
 GITHUB
