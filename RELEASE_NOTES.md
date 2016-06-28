@@ -1,3 +1,7 @@
+### 0.6.0 - June 29 2016
+* show normal message if diffs is empty
+* show detail string diff
+
 ### 0.5.0 - June 3 2016
 * rename project
 * tuple property show only arity
