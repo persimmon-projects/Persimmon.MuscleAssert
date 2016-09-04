@@ -198,7 +198,7 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
     |> Seq.collect (fun x -> translate x.Node x.Expected x.Actual)
     |> fun xs -> { Diff = xs; Ignored = ignored }
 
-type CustomAssertionVisitor =
+type AssertionVisitor =
   inherit NodeVisitor
   abstract member Diff: TranslateResult
 
@@ -220,7 +220,7 @@ module internal Filter =
     t = typ && Array.exists ((=) name) filteredTypeProperties || t = runtimeType && Array.exists ((=) name) filteredRuntimeTypeProperties
 
 [<Sealed>]
-type AssertionVisitor(expectedPrefix: string, expected: obj, actualPrefix: string, actual: obj) =
+type DefaultAssertionVisitor(expectedPrefix: string, expected: obj, actualPrefix: string, actual: obj) =
 
   let translator = Translator(expectedPrefix, actualPrefix)
 
@@ -231,7 +231,7 @@ type AssertionVisitor(expectedPrefix: string, expected: obj, actualPrefix: strin
 
   member __.Diff = translator.Translate()
 
-  interface CustomAssertionVisitor with
+  interface AssertionVisitor with
     member this.Diff = this.Diff
 
   interface NodeVisitor with

@@ -1,11 +1,12 @@
-﻿module Persimmon.MuscleAssert
+﻿namespace Persimmon
 
 open System
 open Persimmon
 open FSharp.Object.Diff
+open Filter
 
-[<NoEquality; NoComparison>]
-type CustomMuscleAssert(differ: ObjectDiffer, visitor: CustomAssertionVisitor) =
+[<NoEquality; NoComparison; Sealed>]
+type MuscleAssert(differ: ObjectDiffer, visitor: AssertionVisitor) =
   
   member __.equals (expected: 'T) (actual: 'T) =
     if IEnumerable.isIEnumerable typeof<'T> && IEnumerable.equal expected actual then pass ()
@@ -24,46 +25,47 @@ type CustomMuscleAssert(differ: ObjectDiffer, visitor: CustomAssertionVisitor) =
       |> String.concat Environment.NewLine
       |> fail
 
-open Filter
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module MuscleAssert =
 
-let internal differ =
-  let builder =
-    ObjectDifferBuilder.StartBuilding()
-      .Comparison.OfPrimitiveTypes()
-      .ToTreatDefaultValuesAs(Assigned)
-      .And()
-      .Inclusion
-      .Exclude()
-      .PropertyNameOfType(typ, filteredTypeProperties)
-      .And()
-      .Filtering
-      .ReturnNodesWithState(Ignored)
-      .And()
-  // System.RuntimeType does not exist mono.
-  if typ <> runtimeType then
-    builder.Inclusion
-      .Exclude()
-      .PropertyNameOfType(runtimeType, filteredRuntimeTypeProperties) 
-    |> ignore
-  builder
-    .Differs
-    .Register({ new DifferFactory with
-      member __.CreateDiffer(_, _) = IEnumerableDiffer :> Differ
-    })
-    .Differs
-    .Register({ new DifferFactory with
-      member __.CreateDiffer(dispatcher, service) =
-        TupleDiffer(dispatcher, service, service, service, builder.Introspection :?> TypeInfoResolver) :> Differ
-    })
-    .Differs
-    .Register({ new DifferFactory with
-      member __.CreateDiffer(dispatcher, service) =
-        DiscriminatedUnionDiffer(dispatcher, service, service, service, builder.Introspection :?> TypeInfoResolver) :> Differ
-    })
-    .Build()
+  let internal differ =
+    let builder =
+      ObjectDifferBuilder.StartBuilding()
+        .Comparison.OfPrimitiveTypes()
+        .ToTreatDefaultValuesAs(Assigned)
+        .And()
+        .Inclusion
+        .Exclude()
+        .PropertyNameOfType(typ, filteredTypeProperties)
+        .And()
+        .Filtering
+        .ReturnNodesWithState(Ignored)
+        .And()
+    // System.RuntimeType does not exist mono.
+    if typ <> runtimeType then
+      builder.Inclusion
+        .Exclude()
+        .PropertyNameOfType(runtimeType, filteredRuntimeTypeProperties) 
+      |> ignore
+    builder
+      .Differs
+      .Register({ new DifferFactory with
+        member __.CreateDiffer(_, _) = IEnumerableDiffer :> Differ
+      })
+      .Differs
+      .Register({ new DifferFactory with
+        member __.CreateDiffer(dispatcher, service) =
+          TupleDiffer(dispatcher, service, service, service, builder.Introspection :?> TypeInfoResolver) :> Differ
+      })
+      .Differs
+      .Register({ new DifferFactory with
+        member __.CreateDiffer(dispatcher, service) =
+          DiscriminatedUnionDiffer(dispatcher, service, service, service, builder.Introspection :?> TypeInfoResolver) :> Differ
+      })
+      .Build()
 
-let assertEquals (expected: 'T) (actual: 'T) =
-  CustomMuscleAssert(differ, AssertionVisitor("expected", expected, "actual", actual)).equals expected actual
+  let assertEquals (expected: 'T) (actual: 'T) =
+    MuscleAssert(differ, DefaultAssertionVisitor("expected", expected, "actual", actual)).equals expected actual
 
-let (===) left right =
-  CustomMuscleAssert(differ, AssertionVisitor("left", left, "right", right)).equals left right
+  let (===) left right =
+    MuscleAssert(differ, DefaultAssertionVisitor("left", left, "right", right)).equals left right
