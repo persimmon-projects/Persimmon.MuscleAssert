@@ -5,7 +5,7 @@ open System.Collections
 open System.Collections.Generic
 open FSharp.Object.Diff
 
-module IEnumerable =
+module internal IEnumerable =
 
   let private enumType = typeof<IEnumerable>
 
@@ -41,7 +41,7 @@ module IEnumerable =
       else true
     inner (getEnumerator a) (getEnumerator b)
 
-type IEnumerableWrapper =
+type internal IEnumerableWrapper =
   | NonGenericIEnumerable of IEnumerable
   | SeqWrapper of obj
 with
@@ -52,7 +52,7 @@ with
       | SeqWrapper o -> IEnumerable.getEnumerator o
 
 [<AutoOpen>]
-module IEnumerableSyntax =
+module internal IEnumerableSyntax =
 
   let (|IsIEnumerable|_|) (o: obj) =
     match o with

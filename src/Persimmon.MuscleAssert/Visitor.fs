@@ -220,7 +220,7 @@ module internal Filter =
     t = typ && Array.exists ((=) name) filteredTypeProperties || t = runtimeType && Array.exists ((=) name) filteredRuntimeTypeProperties
 
 [<Sealed>]
-type internal AssertionVisitor(expectedPrefix: string, expected: obj, actualPrefix: string, actual: obj) =
+type AssertionVisitor(expectedPrefix: string, expected: obj, actualPrefix: string, actual: obj) =
 
   let translator = Translator(expectedPrefix, actualPrefix)
 

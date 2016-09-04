@@ -69,6 +69,7 @@ Target "AssemblyInfo" (fun _ ->
           Attribute.Description summary
           Attribute.Version release.AssemblyVersion
           Attribute.FileVersion release.AssemblyVersion
+          Attribute.InternalsVisibleTo "Persimmon.MuscleAssert.Tests"
           Attribute.InformationalVersion release.NugetVersion ]
 
     let getProjectDetails projectPath =

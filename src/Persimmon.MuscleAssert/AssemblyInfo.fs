@@ -1,5 +1,6 @@
 ﻿namespace System
 open System.Reflection
+open System.Runtime.CompilerServices
 open System.Runtime.InteropServices
 
 [<assembly: AssemblyTitleAttribute("Persimmon.MuscleAssert")>]
@@ -8,6 +9,7 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyDescriptionAttribute("")>]
 [<assembly: AssemblyVersionAttribute("0.6.0")>]
 [<assembly: AssemblyFileVersionAttribute("0.6.0")>]
+[<assembly: InternalsVisibleToAttribute("Persimmon.MuscleAssert.Tests")>]
 [<assembly: AssemblyInformationalVersionAttribute("0.6.0")>]
 do ()
 
