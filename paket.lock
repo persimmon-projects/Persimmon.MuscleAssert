@@ -1,15 +1,14 @@
 NUGET
   remote: http://api.nuget.org/v3/index.json
     Diff.Match.Patch (1.1)
-    Persimmon (1.1)
-  remote: https://www.nuget.org/api/v2
-    FSharp.Object.Diff (0.7)
+    FSharp.Object.Diff (0.9)
+    Persimmon (1.2)
 
 GROUP Build
 NUGET
   remote: http://api.nuget.org/v3/index.json
-    FAKE (4.29.2)
-    FAKE.Lib (4.29.2)
+    FAKE (4.39)
+    FAKE.Lib (4.39)
     FAKE.Persimmon (1.0.4)
       FAKE.Lib (>= 4.1)
       Persimmon.Console (>= 1.0.2)
@@ -20,11 +19,11 @@ NUGET
       Microsoft.Bcl (>= 1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
     NuGet.CommandLine (3.4.3)
-    Octokit (0.20)
+    Octokit (0.22)
       Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
-    Persimmon.Console (1.1)
+    Persimmon.Console (1.2)
     SourceLink.Fake (1.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (911c3efbc9127d52b1db0dc0ed6e12aafd23d548)
+    modules/Octokit/Octokit.fsx (e5870cb85f9b500246e02c6daa94e5131dad7a6e)
       Octokit (>= 0.20)
