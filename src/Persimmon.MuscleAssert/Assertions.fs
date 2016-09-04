@@ -28,7 +28,7 @@ type MuscleAssert(differ: ObjectDiffer, visitor: AssertionVisitor) =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module MuscleAssert =
 
-  let internal differ =
+  let defaultDifferBuilder =
     let builder =
       ObjectDifferBuilder.StartBuilding()
         .Comparison.OfPrimitiveTypes()
@@ -62,7 +62,8 @@ module MuscleAssert =
         member __.CreateDiffer(dispatcher, service) =
           DiscriminatedUnionDiffer(dispatcher, service, service, service, builder.Introspection :?> TypeInfoResolver) :> Differ
       })
-      .Build()
+
+  let private differ = defaultDifferBuilder.Build()
 
   let assertEquals (expected: 'T) (actual: 'T) =
     MuscleAssert(differ, DefaultAssertionVisitor("expected", expected, "actual", actual)).equals expected actual
