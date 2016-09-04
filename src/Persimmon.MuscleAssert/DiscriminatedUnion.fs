@@ -60,7 +60,7 @@ with
             with e ->
               raise <| PropertyReadException(info.Name, target.GetType(), e)
           FSharpType.GetUnionCases(t)
-           |> Array.pick (fun x -> if x.Tag = tag then Some(box (t.Name + "." + x.Name)) else None)
+          |> Array.pick (fun x -> if x.Tag = tag then Some(box (t.Name + "." + x.Name)) else None)
         | UnionCaseItemAccessor accessor -> accessor.Get(target)
     member this.ElementSelector =
       match this with
