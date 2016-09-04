@@ -14,7 +14,7 @@ type MuscleAssert(differ: ObjectDiffer, visitor: AssertionVisitor) =
     else
       let node = differ.Compare(actual, expected)
       node.Visit(visitor)
-      let result = visitor.Diff
+      let result = visitor.Translate()
       if Seq.isEmpty result.Diff then
         seq {
           yield! result.Ignored

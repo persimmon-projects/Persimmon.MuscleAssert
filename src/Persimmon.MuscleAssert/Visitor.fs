@@ -200,7 +200,7 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
 
 type AssertionVisitor =
   inherit NodeVisitor
-  abstract member Diff: TranslateResult
+  abstract member Translate: unit -> TranslateResult
 
 module internal Filter =
 
@@ -229,10 +229,10 @@ type DefaultAssertionVisitor(expectedPrefix: string, expected: obj, actualPrefix
     || node.HasChanges && not node.HasChildren
     || not node.IsRootNode && not (Filter.isFilteredProperties node.ParentNode.Type node.PropertyName) && not node.HasChildren
 
-  member __.Diff = translator.Translate()
+  member __.Translate() = translator.Translate()
 
   interface AssertionVisitor with
-    member this.Diff = this.Diff
+    member this.Translate() = this.Translate()
 
   interface NodeVisitor with
     member __.Node(node, _) =
