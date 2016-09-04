@@ -1,3 +1,7 @@
+### 0.7.0 - September 5 2016
+* avoid NullReferenceException (UseNullAsTrueValue)
+* organize API
+
 ### 0.6.0 - June 29 2016
 * show normal message if diffs is empty
 * show detail string diff
