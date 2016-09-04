@@ -154,6 +154,9 @@ let ``dump diff Dictionary`` = parameterize {
 let ``System.Type dump only FullName`` =
   test (typeof<int>, typeof<string>, [".FullName"; expected "System.Int32"; actual "System.String"; ""; "@@ -4,9 +4,10 @@"; " tem."; "-Int32"; "+String"; ""])
 
+let ``allow CompilationRepresentationFlags.UseNullAsTrueValue`` =
+  test (Some 0, None, ["."; expected "FSharpOption`1.Some"; actual "FSharpOption`1.None"; ""; "@@ -12,8 +12,8 @@"; " n%601."; "-Som"; "+Non"; " e"; ""])
+
 module Nested =
 
   type TestRecord = {

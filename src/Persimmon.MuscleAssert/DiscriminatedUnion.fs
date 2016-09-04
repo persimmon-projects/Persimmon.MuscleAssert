@@ -14,6 +14,41 @@ module internal DU =
   let Item = "Item"
 
 [<Sealed>]
+type UseNullAsTrueValueElementSelector private () =
+  inherit ElementSelector()
+  static let instance = UseNullAsTrueValueElementSelector()
+  static member Instance = instance :> ElementSelector
+  override __.HumanReadableString = ""
+  override this.Equals(other) =
+    match other with
+    | :? RootElementSelector as other when obj.ReferenceEquals(this, other) -> true
+    | _ ->
+      if other <> null && this.GetType() = other.GetType() then true
+      else false
+  override __.GetHashCode() = 0
+
+type UseNullAsTrueValueAccessor = {
+  Type: Type
+}
+with
+  member this.Get(target) =
+    if target = null then
+      FSharpType.GetUnionCases(this.Type)
+      |> Array.pick (fun x ->
+        if Array.isEmpty <| x.GetFields() then
+          Some(this.Type.Name + "." + x.Name)
+        else None)
+    else
+      let case, _ = FSharpValue.GetUnionFields(target, this.Type)
+      this.Type.Name + "." + case.Name
+  interface TypeAwareAccessor with
+    member __.ElementSelector = UseNullAsTrueValueElementSelector.Instance
+    member this.Get(target) =this.Get(target) |> box
+    member __.Set(_, _) = ()
+    member this.Type = this.Type
+    member __.Unset(_): unit = ()
+
+[<Sealed>]
 type UnionCaseItemElementSelector(propertyName: string) =
   inherit ElementSelector()
 
@@ -86,6 +121,12 @@ type DiscriminatedUnionDiffer(
       if isReturnableResolver.IsReturnable(propertyNode) then
         node.AddChild(propertyNode)
 
+  let compareUseNullAsTureValue (node: DiffNode) (instances: Instances) =
+    let accessor = { Type = instances.Type }
+    let caseNode = differDispatcher.Dispatch(node, instances, accessor)
+    if isReturnableResolver.IsReturnable(caseNode) then
+      node.AddChild(caseNode)
+
   let compareDUTagProperty (node: DiffNode) (instances: Instances) =
     let accessor = UnionCaseTagAccessor(instances.Type.GetProperty(DU.Tag))
     let propertyNode = differDispatcher.Dispatch(node, instances, accessor)
@@ -95,7 +136,7 @@ type DiscriminatedUnionDiffer(
   let compare (node: DiffNode) (instances: Instances) =
     match instances.Base, instances.Working with
     | null, null -> compareUsingIntrospection node instances
-    | _, null | null, _ -> compareDUTagProperty node instances
+    | _, null | null, _ -> compareUseNullAsTureValue node instances
     | b, w ->
       let baseInfo, _ = FSharpValue.GetUnionFields(b, instances.Type)
       let workingInfo, _ = FSharpValue.GetUnionFields(w, instances.Type)
