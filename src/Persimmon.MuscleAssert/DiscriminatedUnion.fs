@@ -13,6 +13,8 @@ module internal DU =
   [<Literal>]
   let Item = "Item"
 
+  let caseName t (c: UnionCaseInfo) = Type.name t + "." + c.Name
+
 [<Sealed>]
 type UseNullAsTrueValueElementSelector private () =
   inherit ElementSelector()
@@ -36,11 +38,11 @@ with
       FSharpType.GetUnionCases(this.Type)
       |> Array.pick (fun x ->
         if Array.isEmpty <| x.GetFields() then
-          Some(this.Type.Name + "." + x.Name)
+          Some(DU.caseName this.Type x)
         else None)
     else
       let case, _ = FSharpValue.GetUnionFields(target, this.Type)
-      this.Type.Name + "." + case.Name
+      DU.caseName this.Type case
   interface TypeAwareAccessor with
     member __.ElementSelector = UseNullAsTrueValueElementSelector.Instance
     member this.Get(target) =this.Get(target) |> box
@@ -95,7 +97,7 @@ with
             with e ->
               raise <| PropertyReadException(info.Name, target.GetType(), e)
           FSharpType.GetUnionCases(t)
-          |> Array.pick (fun x -> if x.Tag = tag then Some(box (t.Name + "." + x.Name)) else None)
+          |> Array.pick (fun x -> if x.Tag = tag then Some(box (DU.caseName t x)) else None)
         | UnionCaseItemAccessor accessor -> accessor.Get(target)
     member this.ElementSelector =
       match this with

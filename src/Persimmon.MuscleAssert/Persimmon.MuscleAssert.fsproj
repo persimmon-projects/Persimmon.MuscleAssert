@@ -53,6 +53,7 @@
     <None Include="paket.references" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="IEnumerable.fs" />
+    <Compile Include="TypeHelper.fs" />
     <Compile Include="DiscriminatedUnion.fs" />
     <Compile Include="Tuple.fs" />
     <Compile Include="Visitor.fs" />
