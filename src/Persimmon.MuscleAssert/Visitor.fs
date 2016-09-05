@@ -86,17 +86,17 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
 
   let translateChange (node: DiffNode) (expected: obj) (actual: obj) =
     match expected, actual with
-    | null, null -> []
+    | null, null -> Seq.empty
     | null, _ ->
-      [
-        Path.toStr node.Path
-        appendOnlyActualPrefix actual
-      ]
+      seq {
+        yield Path.toStr node.Path
+        yield appendOnlyActualPrefix actual
+      }
     | _, null ->
-      [
-        Path.toStr node.Path
-        appendOnlyExpectedPrefix expected
-      ]
+      seq {
+        yield Path.toStr node.Path
+        yield appendOnlyExpectedPrefix expected
+      }
     | _ ->
       seq {
         yield
@@ -115,22 +115,25 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
           yield ""
           yield dmp.PatchToText(dmp.PatchMake(text1, diffs))
       }
-      |> Seq.toList
 
   let translate (node: DiffNode) (expected: obj) (actual: obj) =
     match node.State with
     | Changed -> translateChange node expected actual
     | Added ->
-      [
-        Path.toStr node.Path
-        appendOnlyActualPrefix actual
-      ]
+      seq {
+        yield Path.toStr node.Path
+        if expected = null then
+          yield appendExpectedPrefix "null"
+        yield appendActualPrefix actual
+      }
     | Removed ->
-      [
-        Path.toStr node.Path
-        appendOnlyExpectedPrefix expected
-      ]
-    | _ -> []
+      seq {
+        yield Path.toStr node.Path
+        yield appendExpectedPrefix expected
+        if actual = null then
+          yield appendActualPrefix "null"
+      }
+    | _ -> Seq.empty
 
   member __.Add(node: DiffNode, expected: obj, actual: obj) =
     match node.State with

@@ -57,7 +57,8 @@ let ``dump diff primitive value`` = test (0, 1, ["."; expected 0; actual 1])
 let ``dump diff string`` = parameterize {
   source [
     ("", "a", ["."; expected ""; actual "a"; ""; "@@ -0,0 +1 @@"; "+a"; ""])
-    (null, "a", ["."; "  actual a"])
+    (null, "a", ["."; expected "null"; actual "a"])
+    ("a", null, ["."; expected "a"; actual "null"])
     ("a", "b", ["."; expected "a"; actual "b"; ""; "@@ -1 +1 @@"; "-a"; "+b"; ""])
     ("aaa", "aba", ["."; expected "aaa"; actual "aba"; ""; "@@ -1,3 +1,3 @@"; " a"; "-a"; "+b"; " a"; ""])
   ]
@@ -89,6 +90,8 @@ let ``dump diff list`` = parameterize {
 
 let ``dump diff array`` = parameterize {
   source [
+    ([||], null, ["."; expected "System.Int32[]"; actual "null"])
+    (null, [||], ["."; expected "null"; actual "System.Int32[]"])
     ([||], [|1|], [".[0]"; "  actual 1"])
     ([|1|], [||], [".[0]"; "  expected 1"])
     ([|1|], [|2|], [".[0]"; expected 1; actual 2])
