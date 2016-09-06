@@ -1,3 +1,6 @@
+### 0.7.1 - September 6 2016
+* display null literal [#4](https://github.com/persimmon-projects/Persimmon.MuscleAssert/issues/4)
+
 ### 0.7.0 - September 5 2016
 * avoid NullReferenceException (UseNullAsTrueValue)
 * organize API
