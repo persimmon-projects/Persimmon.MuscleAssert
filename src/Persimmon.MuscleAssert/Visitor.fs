@@ -84,6 +84,12 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
     let info = cases |> Array.find (fun x -> x.Tag = tag)
     info.Name
 
+  let isStringFamily (node: DiffNode) =
+    match node.ElementSelector with
+    | :? UseNullAsTrueValueElementSelector -> false
+    | _ when node.Type = typeof<string> -> true
+    | _ -> false
+
   let translateChange (node: DiffNode) (expected: obj) (actual: obj) =
     match expected, actual with
     | null, null -> Seq.empty
@@ -106,7 +112,7 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
           |> Path.toStr
         yield appendExpectedPrefix expected
         yield appendActualPrefix actual
-        if node.Type = typeof<string> then
+        if isStringFamily node then
           let text1 = unbox<string> expected
           let text2 = unbox<string> actual
           let dmp = DiffMatchPatch.Default

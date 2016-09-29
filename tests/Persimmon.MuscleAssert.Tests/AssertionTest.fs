@@ -220,7 +220,7 @@ module Nested =
 module Generic =
 
   let ``allow CompilationRepresentationFlags.UseNullAsTrueValue`` =
-    test (Some 0, None, ["."; expected "FSharpOption<Int32>.Some"; actual "FSharpOption<Int32>.None"; ""; "@@ -17,8 +17,8 @@"; " 32%3e."; "-Som"; "+Non"; " e"; ""])
+    test (Some 0, None, ["."; expected "FSharpOption<Int32>.Some"; actual "FSharpOption<Int32>.None"])
 
   type Either<'T, 'U> =
     | Left of 'T
