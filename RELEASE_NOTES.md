@@ -1,3 +1,6 @@
+### 0.7.2 - September 29 2016
+* fix target diff type
+
 ### 0.7.1 - September 6 2016
 * display null literal [#4](https://github.com/persimmon-projects/Persimmon.MuscleAssert/issues/4)
 
