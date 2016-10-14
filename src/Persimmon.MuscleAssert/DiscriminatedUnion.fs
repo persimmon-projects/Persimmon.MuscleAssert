@@ -31,15 +31,17 @@ type UseNullAsTrueValueElementSelector private () =
 
 type UseNullAsTrueValueAccessor = {
   Type: Type
+  ReturnNullValueName: bool
 }
 with
-  member this.Get(target) =
-    if target = null then
+  member this.Get(target: obj) =
+    if target = null && this.ReturnNullValueName then
       FSharpType.GetUnionCases(this.Type)
       |> Array.pick (fun x ->
         if Array.isEmpty <| x.GetFields() then
           Some(DU.caseName this.Type x)
         else None)
+    elif target = null && not this.ReturnNullValueName then null
     else
       let case, _ = FSharpValue.GetUnionFields(target, this.Type)
       DU.caseName this.Type case
@@ -123,8 +125,8 @@ type DiscriminatedUnionDiffer(
       if isReturnableResolver.IsReturnable(propertyNode) then
         node.AddChild(propertyNode)
 
-  let compareUseNullAsTureValue (node: DiffNode) (instances: Instances) =
-    let accessor = { Type = instances.Type }
+  let compareUseNullAsTureValue (node: DiffNode) (instances: Instances) returnable =
+    let accessor = { Type = instances.Type; ReturnNullValueName = returnable }
     let caseNode = differDispatcher.Dispatch(node, instances, accessor)
     if isReturnableResolver.IsReturnable(caseNode) then
       node.AddChild(caseNode)
@@ -143,12 +145,39 @@ type DiscriminatedUnionDiffer(
     | _ -> false
     )
 
+  let (|HasItem|NoItem|Error|NotCollection|) (instances: Instances, f) =
+    let rec inner (instances: Instances) =
+      match instances.Parent with
+      | Some parent ->
+        match instances.SourceAccessor with
+        | :? CollectionItemAccessor as accessor ->
+          match accessor.TryGet(f parent) with
+          | Choice1Of2 None -> NoItem
+          | Choice1Of2(Some _) -> HasItem
+          | Choice2Of2 e -> Error e
+        | _ -> inner parent
+      | None -> NotCollection
+    inner instances
+
   let compare (node: DiffNode) (instances: Instances) =
-    match instances.Base, instances.Working with
-    | null, null -> compareUsingIntrospection node instances
-    | _, null | null, _ when useNullAsTrueValue instances -> compareUseNullAsTureValue node instances
-    | _, null | null, _ -> compareDUTagProperty node instances
-    | b, w ->
+    let getBase (instances: Instances) = instances.Base
+    let getWorking (instances: Instances) = instances.Working
+    match instances.Base, instances.Working, instances.Parent with
+    | null, null, _ -> compareUsingIntrospection node instances
+    | _, null, Some _ when useNullAsTrueValue instances ->
+      match instances, getWorking with
+      | NoItem -> compareUseNullAsTureValue node instances false
+      | HasItem -> compareUseNullAsTureValue node instances true
+      | Error e -> raise e
+      | NotCollection -> compareUseNullAsTureValue node instances true
+    | null, _, Some _ when useNullAsTrueValue instances ->
+      match instances, getBase with
+      | NoItem -> compareUseNullAsTureValue node instances false
+      | HasItem -> compareUseNullAsTureValue node instances true
+      | Error e -> raise e
+      | NotCollection -> compareUseNullAsTureValue node instances true
+    | _, null, _ | null, _, _ -> compareDUTagProperty node instances
+    | b, w, _ ->
       let baseInfo, _ = FSharpValue.GetUnionFields(b, instances.Type)
       let workingInfo, _ = FSharpValue.GetUnionFields(w, instances.Type)
       if baseInfo <> workingInfo then compareDUTagProperty node instances

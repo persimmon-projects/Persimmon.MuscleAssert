@@ -44,6 +44,8 @@ module private Path =
         loop 0 None (x :: xs)
       | _, (:? TupleItemElementSelector as x) :: xs ->
         loop x.Arity (Some(x :> ElementSelector)) xs
+      | Some _, (:? UseNullAsTrueValueElementSelector as x) :: xs ->
+        loop arity (Some(x :> ElementSelector)) xs
       | _, (:? UnionCaseItemElementSelector as x) :: xs ->
         if not <| String.IsNullOrEmpty x.HumanReadableString then
           bprintf builder ".%s" x.HumanReadableString
@@ -124,13 +126,18 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
           yield dmp.PatchToText(dmp.PatchMake(text1, diffs))
       }
 
+  let printableNull (node: DiffNode) (value: obj) =
+    match node.ElementSelector with
+    | :? UseNullAsTrueValueElementSelector -> false
+    | _ -> value = null
+
   let translate (node: DiffNode) (expected: obj) (actual: obj) =
     match node.State with
     | Changed -> translateChange node expected actual
     | Added ->
       seq {
         yield Path.toStr node.Path
-        if expected = null then
+        if printableNull node expected then
           yield appendExpectedPrefix "null"
         yield appendActualPrefix actual
       }
@@ -138,7 +145,7 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
       seq {
         yield Path.toStr node.Path
         yield appendExpectedPrefix expected
-        if actual = null then
+        if printableNull node actual then
           yield appendActualPrefix "null"
       }
     | _ -> Seq.empty

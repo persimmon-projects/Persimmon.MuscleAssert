@@ -1,7 +1,7 @@
 NUGET
   remote: http://api.nuget.org/v3/index.json
     Diff.Match.Patch (1.1)
-    FSharp.Object.Diff (0.9)
+    FSharp.Object.Diff (0.10.0-beta2)
     Persimmon (1.2)
 
 GROUP Build

@@ -2,7 +2,7 @@ source https://api.nuget.org/v3/index.json
 source https://www.nuget.org/api/v2/
 
 nuget Persimmon >= 1.1.0
-nuget FSharp.Object.Diff >= 0.9.0
+nuget FSharp.Object.Diff >= 0.10.0-beta2
 nuget Diff.Match.Patch = 1.1.0
 
 group Build

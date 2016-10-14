@@ -201,6 +201,7 @@ module Nested =
 
   let ``dump diff list includeing DU`` = parameterize {
     source [
+      ([A], [], [".[0]"; expected "TestDU.A"])
       ([A; A], [A; C], [".[1]"; expected "TestDU.A"; actual "TestDU.C"])
       ([A], [B { X = []; Y = 2 }], [".[0]"; expected "TestDU.A"; actual "TestDU.B"])
       ([B { X = []; Y = 1 }], [B { X = []; Y = 2 }], [".[0].Y"; expected 1; actual 2])
@@ -210,6 +211,7 @@ module Nested =
 
   let ``dump diff tuple`` = parameterize {
     source [
+      ([], [box (1, 0)], [".[0].1"; "  actual 1"; ".[0].2"; "  actual 0"])
       ([box (0, 0)], [box (1, 0)], [".[0].1"; expected 0; actual 1])
       ([box (0, 0); box (0, 0)], [box (0, 0); box (1, 0)], [".[1].1"; expected 0; actual 1])
       ([box (0, 0, 0, 0, 0, 0, 0, 0)], [box (0, 0, 0, 0, 0, 0, 0, 1)], [".[0].8"; expected 0; actual 1])
@@ -222,6 +224,14 @@ module Nested =
   let ``dump diff list included CompilationRepresentationFlags.UseNullAsTrueValue`` =
     test ([ V (Some "b") ], [], [".[0]"; expected "V.V"])
 
+  let ``allow CompilationRepresentationFlags.UseNullAsTrueValue included CompilationRepresentationFlags.UseNullAsTrueValue`` =
+    test ([ Some (Some "") ], [], [".[0]"; expected "FSharpOption<FSharpOption<String>>.Some"])
+
+  type T = { X: string option }
+
+  let ``dump diff list included CompilationRepresentationFlags.UseNullAsTrueValue 2`` =
+    test ([], [ { X = Some "a" } ], [".[0].X"; actual "FSharpOption<String>.Some"])
+
 module Generic =
 
   let ``allow CompilationRepresentationFlags.UseNullAsTrueValue`` =
@@ -233,3 +243,9 @@ module Generic =
 
   let ``show multiple generic parameter`` =
     test (Left 0, Right "1", ["."; expected "Either<Int32, String>.Left"; actual "Either<Int32, String>.Right"])
+
+  module Nested =
+
+    let ``dump list included DU`` =
+      let xs: Either<Either<int, string>, string> list =  [Left (Left 0)]
+      test (xs, [], [".[0]"; expected "Either<Either<Int32, String>, String>.Left"])
