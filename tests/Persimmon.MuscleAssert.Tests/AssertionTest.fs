@@ -217,6 +217,11 @@ module Nested =
     run test
   }
 
+  type V = V of string option
+  
+  let ``dump diff list included CompilationRepresentationFlags.UseNullAsTrueValue`` =
+    test ([ V (Some "b") ], [], [".[0]"; expected "V.V"])
+
 module Generic =
 
   let ``allow CompilationRepresentationFlags.UseNullAsTrueValue`` =

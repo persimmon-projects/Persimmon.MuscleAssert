@@ -135,10 +135,19 @@ type DiscriminatedUnionDiffer(
     if isReturnableResolver.IsReturnable(propertyNode) then
       node.AddChild(propertyNode)
 
+  let useNullAsTrueValue (instances: Instances) =
+    instances.Type.GetCustomAttributes(false)
+    |> Array.exists (function
+    | :? CompilationRepresentationAttribute as a ->
+      a.Flags = CompilationRepresentationFlags.UseNullAsTrueValue
+    | _ -> false
+    )
+
   let compare (node: DiffNode) (instances: Instances) =
     match instances.Base, instances.Working with
     | null, null -> compareUsingIntrospection node instances
-    | _, null | null, _ -> compareUseNullAsTureValue node instances
+    | _, null | null, _ when useNullAsTrueValue instances -> compareUseNullAsTureValue node instances
+    | _, null | null, _ -> compareDUTagProperty node instances
     | b, w ->
       let baseInfo, _ = FSharpValue.GetUnionFields(b, instances.Type)
       let workingInfo, _ = FSharpValue.GetUnionFields(w, instances.Type)

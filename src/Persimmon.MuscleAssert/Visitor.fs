@@ -45,8 +45,8 @@ module private Path =
       | _, (:? TupleItemElementSelector as x) :: xs ->
         loop x.Arity (Some(x :> ElementSelector)) xs
       | _, (:? UnionCaseItemElementSelector as x) :: xs ->
-        if String.IsNullOrEmpty x.HumanReadableString then ()
-        else bprintf builder ".%s" x.HumanReadableString
+        if not <| String.IsNullOrEmpty x.HumanReadableString then
+          bprintf builder ".%s" x.HumanReadableString
         loop arity (Some(x :> ElementSelector)) xs
       | _, x :: xs ->
         bprintf builder ".%O" x
@@ -90,26 +90,28 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
     | _ when node.Type = typeof<string> -> true
     | _ -> false
 
+  let pathToString (node: DiffNode) =
+    if not node.IsRootNode && FSharpType.IsUnion(node.ParentNode.Type) then
+      if node.PropertyName = DU.Tag then node.ParentNode.Path else node.Path
+    else node.Path
+    |> Path.toStr
+
   let translateChange (node: DiffNode) (expected: obj) (actual: obj) =
     match expected, actual with
     | null, null -> Seq.empty
     | null, _ ->
       seq {
-        yield Path.toStr node.Path
+        yield pathToString node
         yield appendOnlyActualPrefix actual
       }
     | _, null ->
       seq {
-        yield Path.toStr node.Path
+        yield pathToString node
         yield appendOnlyExpectedPrefix expected
       }
     | _ ->
       seq {
-        yield
-          if not node.IsRootNode && FSharpType.IsUnion(node.ParentNode.Type) then
-            if node.PropertyName = DU.Tag then node.ParentNode.Path else node.Path
-          else node.Path
-          |> Path.toStr
+        yield pathToString node
         yield appendExpectedPrefix expected
         yield appendActualPrefix actual
         if isStringFamily node then
