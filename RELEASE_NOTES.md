@@ -1,3 +1,8 @@
+### 0.8.0-beta1 October 16 2016
+* support mutual recursion object [#5])(https://github.com/persimmon-projects/Persimmon.MuscleAssert/issues/5)
+* fix to check UseNullAsTrueValue
+* fix display path(UseNullAsTrueValue)
+
 ### 0.7.2 - September 29 2016
 * fix target diff type
 
