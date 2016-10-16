@@ -249,3 +249,30 @@ module Generic =
     let ``dump list included DU`` =
       let xs: Either<Either<int, string>, string> list =  [Left (Left 0)]
       test (xs, [], [".[0]"; expected "Either<Either<Int32, String>, String>.Left"])
+
+module Recursion =
+
+  open System.Xml.Linq
+
+  let ``avoid infinite loop`` =
+    let a =
+      XElement(
+        XName.Get("a"),
+        XElement(
+          XName.Get("B"),
+          0
+        )
+      )
+    let b =
+      XElement(
+        XName.Get("a"),
+        XElement(
+          XName.Get("B"),
+          1
+        )
+      )
+    let value path = [path; expected 0; actual 1; ""; "@@ -1 +1 @@"; "-0"; "+1"; ""]
+    let expected =
+      [""; ".FirstNode"; ".FirstNode.FirstNode"; ".FirstNode.LastNode"; ".FirstNode.Parent"; ".LastNode"; ".LastNode.FirstNode"; ".LastNode.LastNode"; ".LastNode.Parent"]
+      |> List.collect (sprintf"%s.Value" >> value)
+    test (a, b, expected)

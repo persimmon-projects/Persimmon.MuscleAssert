@@ -160,7 +160,11 @@ type private Translator(expectedPrefix: string, actualPrefix: string) =
     let ignored =
       let paths =
         ignored
-        |> Seq.map (fun x -> Path.toStr x.Path |> String.indent 1)
+        |> Seq.choose (fun x ->
+          if IEnumerable.isIEnumerable x.Type then
+            Path.toStr x.Path |> String.indent 1 |> Some
+          else None
+        )
         |> Seq.distinct
       if Seq.isEmpty paths then paths
       else
