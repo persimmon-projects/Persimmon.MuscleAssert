@@ -2,11 +2,9 @@
 namespace System
 open System.Reflection
 open System.Runtime.CompilerServices
-open System.Runtime.InteropServices
 
 [<assembly: AssemblyTitleAttribute("Persimmon.MuscleAssert.NET40")>]
 [<assembly: AssemblyProductAttribute("Persimmon.MuscleAssert")>]
-[<assembly: GuidAttribute("42384685-8f4f-45d7-a305-0528113e1c19")>]
 [<assembly: AssemblyDescriptionAttribute("")>]
 [<assembly: AssemblyVersionAttribute("0.8.0")>]
 [<assembly: AssemblyFileVersionAttribute("0.8.0")>]
@@ -17,7 +15,6 @@ do ()
 module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyTitle = "Persimmon.MuscleAssert.NET40"
     let [<Literal>] AssemblyProduct = "Persimmon.MuscleAssert"
-    let [<Literal>] Guid = "42384685-8f4f-45d7-a305-0528113e1c19"
     let [<Literal>] AssemblyDescription = ""
     let [<Literal>] AssemblyVersion = "0.8.0"
     let [<Literal>] AssemblyFileVersion = "0.8.0"

@@ -66,9 +66,8 @@ let (|Fsproj|Csproj|Vbproj|) (projFileName:string) =
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
   let getAssemblyInfoAttributes projectName =
-    [ Attribute.Title (projectName)
+    [ Attribute.Title (projectName |> replace ".NET20" "" |> replace ".Portable259" "" |> replace ".Portable78" "" |> replace ".Portable7" "")
       Attribute.Product project
-      Attribute.Guid "42384685-8f4f-45d7-a305-0528113e1c19"
       Attribute.Description summary
       Attribute.Version release.AssemblyVersion
       Attribute.FileVersion release.AssemblyVersion
@@ -86,7 +85,7 @@ Target "AssemblyInfo" (fun _ ->
   !! "src/**/*.??proj"
   |> Seq.choose (fun p ->
     let name = Path.GetFileNameWithoutExtension(p)
-    if name.EndsWith("NETCore") || name.EndsWith("NET45") then None
+    if name.EndsWith("NETCore") || name.EndsWith("NETCore") || name.EndsWith("NET45") then None
     else getProjectDetails p |> Some
   )
   |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->

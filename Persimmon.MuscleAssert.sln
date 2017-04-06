@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.MuscleAssert.NET20", "src\Persimmon.MuscleAssert.NET20\Persimmon.MuscleAssert.NET20.fsproj", "{42384685-8F4F-45D7-A305-0528113E1C19}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.MuscleAssert.Tests", "tests\Persimmon.MuscleAssert.Tests\Persimmon.MuscleAssert.Tests.fsproj", "{A9C58C6B-B0D5-429B-A365-197505E2B610}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.MuscleAssert.Portable78", "src\Persimmon.MuscleAssert.Portable78\Persimmon.MuscleAssert.Portable78.fsproj", "{F8C09D05-4D4A-4617-BC5D-0F9AF7055731}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.MuscleAssert.Portable259", "src\Persimmon.MuscleAssert.Portable259\Persimmon.MuscleAssert.Portable259.fsproj", "{3E9BCCBA-8D62-4C8E-907C-6FB254D1BF56}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.MuscleAssert.Portable7", "src\Persimmon.MuscleAssert.Portable7\Persimmon.MuscleAssert.Portable7.fsproj", "{6078A516-07A1-42E7-BEB5-D5A9E75B47E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{A9C58C6B-B0D5-429B-A365-197505E2B610}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9C58C6B-B0D5-429B-A365-197505E2B610}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9C58C6B-B0D5-429B-A365-197505E2B610}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8C09D05-4D4A-4617-BC5D-0F9AF7055731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8C09D05-4D4A-4617-BC5D-0F9AF7055731}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8C09D05-4D4A-4617-BC5D-0F9AF7055731}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8C09D05-4D4A-4617-BC5D-0F9AF7055731}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E9BCCBA-8D62-4C8E-907C-6FB254D1BF56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E9BCCBA-8D62-4C8E-907C-6FB254D1BF56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E9BCCBA-8D62-4C8E-907C-6FB254D1BF56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E9BCCBA-8D62-4C8E-907C-6FB254D1BF56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6078A516-07A1-42E7-BEB5-D5A9E75B47E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6078A516-07A1-42E7-BEB5-D5A9E75B47E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6078A516-07A1-42E7-BEB5-D5A9E75B47E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6078A516-07A1-42E7-BEB5-D5A9E75B47E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

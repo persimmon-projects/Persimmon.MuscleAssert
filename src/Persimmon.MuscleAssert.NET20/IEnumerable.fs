@@ -1,7 +1,7 @@
 ﻿namespace Persimmon
 
 open System
-#if NETSTANDARD
+#if PCL || NETSTANDARD
 open System.Reflection
 #endif
 open System.Collections
@@ -18,45 +18,48 @@ module internal IEnumerable =
     let private runtimeHelpers = Seq.empty<int>.GetType().DeclaringType
 
     let isSeq (t: Type) =
-#if NETSTANDARD
+#if PCL || NETSTANDARD
       let info = t.GetTypeInfo()
       if info.IsGenericType then
 #else
       if t.IsGenericType then
 #endif
         let ps =
-#if NETSTANDARD
-          info
+#if PCL || NETSTANDARD
+          info.GenericTypeArguments
 #else
-          t
+          t.GetGenericArguments()
 #endif
-            .GetGenericArguments()
         if Array.length ps = 1 then
           let ie =
             typedefof<_ seq>
-#if NETSTANDARD
+#if PCL || NETSTANDARD
               .GetTypeInfo()
 #endif
               .MakeGenericType(ps)
           if ie = t then true
           // System.Type objects of Seq.empty and some generated seq do not equal typeof<'T seq>
-          elif
+          else
             ie
-#if NETSTANDARD
+#if PCL || NETSTANDARD
               .GetTypeInfo()
-#endif
+              .IsAssignableFrom(info)
+#else
               .IsAssignableFrom(t)
-              && t.DeclaringType = runtimeHelpers then true
-          else false
+#endif
+              && t.DeclaringType = runtimeHelpers
         else false
       else false
 
   let getEnumerator e =
     enumType
-#if NETSTANDARD
+#if PCL || NETSTANDARD
       .GetTypeInfo()
+      .GetDeclaredMethod("GetEnumerator")
+#else
+      .GetMethod("GetEnumerator")
 #endif
-      .GetMethod("GetEnumerator").Invoke(e, [||])
+      .Invoke(e, [||])
     :?> IEnumerator
 
   let isIEnumerable (typ: Type) = typ = typeof<IEnumerable> || Generic.isSeq typ
@@ -66,8 +69,7 @@ module internal IEnumerable =
       if a.MoveNext() then
         if b.MoveNext() && a.Current = b.Current then inner a b
         else false
-      elif b.MoveNext() then false
-      else true
+      else not <| b.MoveNext()
     inner (getEnumerator a) (getEnumerator b)
 
 type internal IEnumerableWrapper =

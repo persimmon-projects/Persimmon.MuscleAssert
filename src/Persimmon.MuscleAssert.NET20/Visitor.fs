@@ -1,7 +1,7 @@
 ﻿namespace Persimmon
 
 open System
-#if NETSTANDARD
+#if PCL || NETSTANDARD
 open System.Reflection
 #endif
 open System.Collections
@@ -235,18 +235,24 @@ module internal Filter =
   let typ = typeof<Type>
   let filteredTypeProperties =
     typ
-#if NETSTANDARD
+#if PCL || NETSTANDARD
       .GetTypeInfo()
-#endif
+      .DeclaredProperties
+    |> Seq.toArray
+#else
       .GetProperties()
+#endif
     |> Array.choose (fun x -> if List.exists ((=) x.Name) includedPropertyNames then None else Some x.Name)
   let runtimeType = typ.GetType()
   let filteredRuntimeTypeProperties =
     runtimeType
-#if NETSTANDARD
+#if PCL || NETSTANDARD
       .GetTypeInfo()
-#endif
+      .DeclaredProperties
+    |> Seq.toArray
+#else
       .GetProperties()
+#endif
     |> Array.choose (fun x -> if List.exists ((=) x.Name) includedPropertyNames then None else Some x.Name)
 
   let isFilteredProperties t name =

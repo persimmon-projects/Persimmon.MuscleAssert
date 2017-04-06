@@ -24,9 +24,7 @@ type UseNullAsTrueValueElementSelector private () =
   override this.Equals(other) =
     match other with
     | :? RootElementSelector as other when obj.ReferenceEquals(this, other) -> true
-    | _ ->
-      if other <> null && this.GetType() = other.GetType() then true
-      else false
+    | _ -> other <> null && this.GetType() = other.GetType()
   override __.GetHashCode() = 0
 
 type UseNullAsTrueValueAccessor = {
@@ -134,10 +132,12 @@ type DiscriminatedUnionDiffer(
   let compareDUTagProperty (node: DiffNode) (instances: Instances) =
     let tag =
       instances.Type
-#if NETSTANDARD
+#if PCL || NETSTANDARD
         .GetTypeInfo()
-#endif
+        .GetDeclaredProperty(DU.Tag)
+#else
         .GetProperty(DU.Tag)
+#endif
     let accessor = UnionCaseTagAccessor(tag)
     let propertyNode = differDispatcher.Dispatch(node, instances, accessor)
     if isReturnableResolver.IsReturnable(propertyNode) then
@@ -145,7 +145,7 @@ type DiscriminatedUnionDiffer(
 
   let useNullAsTrueValue (instances: Instances) =
     instances.Type
-#if NETSTANDARD
+#if PCL || NETSTANDARD
        .GetTypeInfo().GetCustomAttributes(false)
     |> Seq.exists (function
 #else
