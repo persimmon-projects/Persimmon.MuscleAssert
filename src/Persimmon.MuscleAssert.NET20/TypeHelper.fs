@@ -1,11 +1,24 @@
 ﻿module internal Persimmon.Type
 
 open System
+#if NETSTANDARD
+open System.Reflection
+#endif
 
 let rec name (t: Type) =
+#if NETSTANDARD
+  let info = t.GetTypeInfo()
+  if info.IsGenericType then
+#else
   if t.IsGenericType then
+#endif
     let n = t.Name.Split([|'`'|]).[0]
-    t.GetGenericArguments()
+#if NETSTANDARD
+    info
+#else
+    t
+#endif
+      .GetGenericArguments()
     |> Array.map name
     |> String.concat ", "
     |> sprintf "%s<%s>" n

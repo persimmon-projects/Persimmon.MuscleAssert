@@ -12,7 +12,14 @@ open System.IO
 open SourceLink
 #endif
 
+let configuration = getBuildParamOrDefault "configuration" "Release"
+
+let isDotnetInstalled = DotNetCli.isInstalled()
+let isTravisCI = (environVarOrDefault "TRAVIS" "") = "true"
+
 let project = "Persimmon.MuscleAssert"
+
+let outDir = "bin"
 
 // Short summary of the project
 // (used as description in AssemblyInfo and as a short summary for NuGet package)
@@ -32,7 +39,7 @@ let tags = "F#, fsharp, testing"
 let solutionFile  = "Persimmon.MuscleAssert.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
+let testAssemblies = "tests/**/bin" @@ configuration @@ "*Tests*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -44,10 +51,6 @@ let gitName = "Persimmon.MuscleAssert"
 
 // The url for the raw files hosted
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/persimmon-projects"
-
-// --------------------------------------------------------------------------------------
-// END TODO: The rest of the file includes standard build steps
-// --------------------------------------------------------------------------------------
 
 // Read additional information from the release notes document
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
@@ -81,7 +84,11 @@ Target "AssemblyInfo" (fun _ ->
         )
 
     !! "src/**/*.??proj"
-    |> Seq.map getProjectDetails
+    |> Seq.choose (fun p ->
+      let name = Path.GetFileNameWithoutExtension(p)
+      if name.EndsWith("NETCore") || name.EndsWith("NET45") then None
+      else getProjectDetails p |> Some
+    )
     |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
         match projFileName with
         | Fsproj -> CreateFSharpAssemblyInfo (("src" @@ folderName) @@ "AssemblyInfo.fs") attributes
@@ -94,25 +101,81 @@ Target "AssemblyInfo" (fun _ ->
 // But keeps a subdirectory structure for each project in the
 // src folder to support multiple project outputs
 Target "CopyBinaries" (fun _ ->
-    !! "src/**/*.??proj"
-    |>  Seq.map (fun f -> ((System.IO.Path.GetDirectoryName f) @@ "bin/Release", "bin" @@ (System.IO.Path.GetFileNameWithoutExtension f)))
-    |>  Seq.iter (fun (fromDir, toDir) -> CopyDir toDir fromDir (fun _ -> true))
+  !! "src/**/*.??proj"
+  |> Seq.filter (fun p ->
+    let p = Path.GetFileNameWithoutExtension(p)
+    not (p.EndsWith("NET40") || p.EndsWith("NET45") || p.EndsWith("NETCore"))
+  )
+  |>  Seq.map (fun f -> ((System.IO.Path.GetDirectoryName f) @@ "bin" @@ configuration, outDir @@ (System.IO.Path.GetFileNameWithoutExtension f)))
+  |>  Seq.iter (fun (fromDir, toDir) -> CopyDir toDir fromDir (fun _ -> true))
 )
 
 // --------------------------------------------------------------------------------------
 // Clean build results
 
 Target "Clean" (fun _ ->
-    CleanDirs ["bin"; "temp"]
+  CleanDirs [outDir; "temp"]
+  !! ("./src/**/bin" @@ configuration)
+  |> CleanDirs
 )
 
 // --------------------------------------------------------------------------------------
 // Build library & test project
 
 Target "Build" (fun _ ->
-    !! solutionFile
-    |> MSBuildRelease "" "Rebuild"
-    |> ignore
+  !! solutionFile
+  |> MSBuild "" "Rebuild" [ ("Configuration", configuration) ]
+  |> ignore
+)
+
+Target "Build.NETCore" (fun _ ->
+
+  let args = [ sprintf "/p:Version=%s" release.NugetVersion ]
+
+  let net40Project = "src/Persimmon.MuscleAssert.NET40/Persimmon.MuscleAssert.NET40.fsproj"
+  let net45Project = "src/Persimmon.MuscleAssert.NET45/Persimmon.MuscleAssert.NET45.fsproj"
+  let netCoreProject = "src/Persimmon.MuscleAssert.NETCore/Persimmon.MuscleAssert.NETCore.fsproj"
+
+  if not isTravisCI then
+
+    DotNetCli.Restore (fun p ->
+      { p with
+          Project = net40Project
+      }
+    )
+    DotNetCli.Build (fun p ->
+      { p with
+          Project = net40Project
+          Configuration = configuration
+          AdditionalArgs = args
+      }
+    )
+
+    DotNetCli.Restore (fun p ->
+      { p with
+          Project = net45Project
+      }
+    )
+    DotNetCli.Build (fun p ->
+      { p with
+          Project = net45Project
+          Configuration = configuration
+          AdditionalArgs = args
+      }
+    )
+
+  DotNetCli.Restore (fun p ->
+    { p with
+        Project = netCoreProject
+    }
+  )
+  DotNetCli.Build (fun p ->
+    { p with
+        Project = netCoreProject
+        Configuration = configuration
+        AdditionalArgs = args
+    }
+  )
 )
 
 // --------------------------------------------------------------------------------------
@@ -120,6 +183,10 @@ Target "Build" (fun _ ->
 Target "RunTests" (fun _ ->
     !! testAssemblies
     |> Persimmon id
+)
+
+Target "RunTests.NETCore" (fun _ ->
+  ()
 )
 
 #if MONO
@@ -144,11 +211,15 @@ Target "SourceLink" (fun _ ->
 // Build a NuGet package
 
 Target "NuGet" (fun _ ->
-    Paket.Pack(fun p ->
-        { p with
-            OutputPath = "bin"
-            Version = release.NugetVersion
-            ReleaseNotes = toLines release.Notes})
+  NuGet (fun p ->
+    {
+      p with
+        OutputPath = outDir
+        WorkingDir = outDir
+        Version = release.NugetVersion
+        ReleaseNotes = toLines release.Notes
+    }
+  ) "src/Persimmon.MuscleAssert.nuspec"
 )
 
 Target "PublishNuget" (fun _ ->
@@ -178,24 +249,30 @@ Target "Release" (fun _ ->
 
 Target "BuildPackage" DoNothing
 
+Target "NETCore" DoNothing
+
 Target "All" DoNothing
 
 "Clean"
   ==> "AssemblyInfo"
-  ==> "Build"
-  ==> "CopyBinaries"
-  ==> "RunTests"
+  =?> ("Build", not isTravisCI)
+  =?> ("CopyBinaries", not isTravisCI)
+  =?> ("RunTests", not isTravisCI)
+  =?> ("NETCore", isDotnetInstalled)
   ==> "All"
+
+"Build.NETCore"
+  ==> "RunTests.NETCore"
+  ==> "NETCore"
 
 "All"
 #if MONO
 #else
-  =?> ("SourceLink", Pdbstr.tryFind().IsSome )
+  =?> ("SourceLink", Pdbstr.tryFind().IsSome)
 #endif
   ==> "NuGet"
-  ==> "BuildPackage"
 
-"BuildPackage"
+"NuGet"
   ==> "PublishNuget"
   ==> "Release"
 

@@ -24,11 +24,11 @@ let ``pass seq test`` = test {
 }
 
 let ``prefix check`` = test {
-  let msg =
+  let cause =
     ["."; "  left  0"; "  right 1"]
     |> String.concat Environment.NewLine
     |> Violated
-    |> NotPassed
+  let msg = NotPassed(None, cause)
   do!
     MuscleAssert.(===) 0 1
     |> assertEquals msg
@@ -37,11 +37,11 @@ let ``prefix check`` = test {
 module Helper =
 
   let test (expected, actual, message) = test {
-    let msg =
+    let cause =
       message
       |> String.concat Environment.NewLine
       |> Violated
-      |> NotPassed
+    let msg = NotPassed(None, cause)
     do!
       MuscleAssert.assertEquals expected actual
       |> assertEquals msg

@@ -5,14 +5,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>a9c58c6b-b0d5-429b-a365-197505e2b610</ProjectGuid>
+    <ProjectGuid>42384685-8f4f-45d7-a305-0528113e1c19</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Persimmon.MuscleAssert.Tests</RootNamespace>
-    <AssemblyName>Persimmon.MuscleAssert.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
+    <RootNamespace>Persimmon.MuscleAssert</RootNamespace>
+    <AssemblyName>Persimmon.MuscleAssert</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFSharpCoreVersion>2.3.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>Persimmon.MuscleAssert.Tests</Name>
+    <Name>Persimmon.MuscleAssert</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +22,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Persimmon.MuscleAssert.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Persimmon.MuscleAssert.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Persimmon.MuscleAssert.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Persimmon.MuscleAssert.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -49,6 +49,20 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
+  <ItemGroup>
+    <None Include="paket.references" />
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="IEnumerable.fs" />
+    <Compile Include="TypeHelper.fs" />
+    <Compile Include="DiscriminatedUnion.fs" />
+    <Compile Include="Tuple.fs" />
+    <Compile Include="Visitor.fs" />
+    <Compile Include="Assertions.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+  </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -56,25 +70,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <None Include="paket.references" />
-    <Compile Include="IEnumerableTest.fs" />
-    <Compile Include="AssertionTest.fs" />
-    <Compile Include="IgnoredPropertyTest.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <ProjectReference Include="..\..\src\Persimmon.MuscleAssert.NET20\Persimmon.MuscleAssert.NET20.fsproj">
-      <Name>Persimmon.MuscleAssert.NET20</Name>
-      <Project>{42384685-8f4f-45d7-a305-0528113e1c19}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-  </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v2.0' Or $(TargetFrameworkVersion) == 'v3.0' Or $(TargetFrameworkVersion) == 'v3.5')">
       <ItemGroup>
@@ -235,6 +230,9 @@
     </When>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.0'">
       <ItemGroup>
+        <Reference Include="System.Numerics">
+          <Paket>True</Paket>
+        </Reference>
         <Reference Include="FSharp.Object.Diff">
           <HintPath>..\..\packages\FSharp.Object.Diff\lib\net40\FSharp.Object.Diff.dll</HintPath>
           <Private>True</Private>
@@ -244,6 +242,9 @@
     </When>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
       <ItemGroup>
+        <Reference Include="System.Numerics">
+          <Paket>True</Paket>
+        </Reference>
         <Reference Include="FSharp.Object.Diff">
           <HintPath>..\..\packages\FSharp.Object.Diff\lib\net45\FSharp.Object.Diff.dll</HintPath>
           <Private>True</Private>
@@ -330,6 +331,15 @@
         <Reference Include="Persimmon">
           <HintPath>..\..\packages\Persimmon\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Persimmon.dll</HintPath>
           <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
+      <ItemGroup>
+        <Reference Include="System.Core">
           <Paket>True</Paket>
         </Reference>
       </ItemGroup>

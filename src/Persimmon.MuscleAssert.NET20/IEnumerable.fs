@@ -1,6 +1,9 @@
 ﻿namespace Persimmon
 
 open System
+#if NETSTANDARD
+open System.Reflection
+#endif
 open System.Collections
 open System.Collections.Generic
 open FSharp.Object.Diff
@@ -15,19 +18,45 @@ module internal IEnumerable =
     let private runtimeHelpers = Seq.empty<int>.GetType().DeclaringType
 
     let isSeq (t: Type) =
+#if NETSTANDARD
+      let info = t.GetTypeInfo()
+      if info.IsGenericType then
+#else
       if t.IsGenericType then
-        let ps = t.GetGenericArguments()
+#endif
+        let ps =
+#if NETSTANDARD
+          info
+#else
+          t
+#endif
+            .GetGenericArguments()
         if Array.length ps = 1 then
-          let ie = typedefof<_ seq>.MakeGenericType(ps)
+          let ie =
+            typedefof<_ seq>
+#if NETSTANDARD
+              .GetTypeInfo()
+#endif
+              .MakeGenericType(ps)
           if ie = t then true
           // System.Type objects of Seq.empty and some generated seq do not equal typeof<'T seq>
-          elif ie.IsAssignableFrom(t) && t.DeclaringType = runtimeHelpers then true
+          elif
+            ie
+#if NETSTANDARD
+              .GetTypeInfo()
+#endif
+              .IsAssignableFrom(t)
+              && t.DeclaringType = runtimeHelpers then true
           else false
         else false
       else false
 
   let getEnumerator e =
-    enumType.GetMethod("GetEnumerator").Invoke(e, [||])
+    enumType
+#if NETSTANDARD
+      .GetTypeInfo()
+#endif
+      .GetMethod("GetEnumerator").Invoke(e, [||])
     :?> IEnumerator
 
   let isIEnumerable (typ: Type) = typ = typeof<IEnumerable> || Generic.isSeq typ

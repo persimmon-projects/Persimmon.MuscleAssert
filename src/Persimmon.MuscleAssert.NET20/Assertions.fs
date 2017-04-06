@@ -1,6 +1,9 @@
 ﻿namespace Persimmon
 
 open System
+#if NET45 || NETSTANDARD
+open System.Runtime.CompilerServices
+#endif
 open Persimmon
 open FSharp.Object.Diff
 open Filter
@@ -8,27 +11,25 @@ open Filter
 [<NoEquality; NoComparison; Sealed>]
 type MuscleAssert(differ: ObjectDiffer, visitor: AssertionVisitor) =
   
-  member __.equals (expected: 'T) (actual: 'T) =
+  member __.Equal(expected: 'T, actual: 'T,  [<CallerLineNumber>]?line : int) =
     if IEnumerable.isIEnumerable typeof<'T> && IEnumerable.equal expected actual then pass ()
     elif expected = actual then pass ()
     else
       let node = differ.Compare(actual, expected)
       node.Visit(visitor)
       let result = visitor.Translate()
-      if Seq.isEmpty result.Diff then
-        seq {
-          yield! result.Ignored
-          yield sprintf "Expect: %A" expected
-          yield sprintf "Actual: %A" actual
-        }
-      else Seq.append result.Diff result.Ignored
-      |> String.concat Environment.NewLine
-      |> fail
+      let msg =
+        if Seq.isEmpty result.Diff then
+          seq {
+            yield! result.Ignored
+            yield sprintf "Expect: %A" expected
+            yield sprintf "Actual: %A" actual
+          }
+        else Seq.append result.Diff result.Ignored
+        |> String.concat Environment.NewLine
+      Assert.Fail(msg, ?line = line)
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module MuscleAssert =
-
-  let defaultDifferBuilder =
+  static member DefaultDifferBuilder =
     let builder =
       ObjectDifferBuilder.StartBuilding()
         .Comparison.OfPrimitiveTypes()
@@ -63,10 +64,19 @@ module MuscleAssert =
           DiscriminatedUnionDiffer(dispatcher, service, service, service, builder.Introspection :?> TypeInfoResolver) :> Differ
       })
 
-  let private differ = defaultDifferBuilder.Build()
+  static member Equal(expected: 'T, actual: 'T,  [<CallerLineNumber>]?line : int) =
+    MuscleAssert(MuscleAssert.DefaultDifferBuilder.Build(), DefaultAssertionVisitor("expected", expected, "actual", actual))
+      .Equal(expected, actual, ?line = line)
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module MuscleAssert =
+
+  let defaultDifferBuilder = MuscleAssert.DefaultDifferBuilder
 
   let assertEquals (expected: 'T) (actual: 'T) =
-    MuscleAssert(defaultDifferBuilder.Build(), DefaultAssertionVisitor("expected", expected, "actual", actual)).equals expected actual
+    MuscleAssert(defaultDifferBuilder.Build(), DefaultAssertionVisitor("expected", expected, "actual", actual))
+      .Equal(expected, actual)
 
   let (===) left right =
-    MuscleAssert(defaultDifferBuilder.Build(), DefaultAssertionVisitor("left", left, "right", right)).equals left right
+    MuscleAssert(defaultDifferBuilder.Build(), DefaultAssertionVisitor("left", left, "right", right))
+      .Equal(left, right)

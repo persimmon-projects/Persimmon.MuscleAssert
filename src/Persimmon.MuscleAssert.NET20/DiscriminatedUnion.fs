@@ -132,14 +132,26 @@ type DiscriminatedUnionDiffer(
       node.AddChild(caseNode)
 
   let compareDUTagProperty (node: DiffNode) (instances: Instances) =
-    let accessor = UnionCaseTagAccessor(instances.Type.GetProperty(DU.Tag))
+    let tag =
+      instances.Type
+#if NETSTANDARD
+        .GetTypeInfo()
+#endif
+        .GetProperty(DU.Tag)
+    let accessor = UnionCaseTagAccessor(tag)
     let propertyNode = differDispatcher.Dispatch(node, instances, accessor)
     if isReturnableResolver.IsReturnable(propertyNode) then
       node.AddChild(propertyNode)
 
   let useNullAsTrueValue (instances: Instances) =
-    instances.Type.GetCustomAttributes(false)
+    instances.Type
+#if NETSTANDARD
+       .GetTypeInfo().GetCustomAttributes(false)
+    |> Seq.exists (function
+#else
+      .GetCustomAttributes(false)
     |> Array.exists (function
+#endif
     | :? CompilationRepresentationAttribute as a ->
       a.Flags = CompilationRepresentationFlags.UseNullAsTrueValue
     | _ -> false

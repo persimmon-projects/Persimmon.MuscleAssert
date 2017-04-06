@@ -1,0 +1,23 @@
+﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard1.6</TargetFramework>
+    <AssemblyName>Persimmon.MuscleAssert</AssemblyName>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Persimmon.MuscleAssert.NET45\CommonAssemblyInfo.fs" />
+    <Compile Include="..\Persimmon.MuscleAssert.NET20\IEnumerable.fs" />
+    <Compile Include="..\Persimmon.MuscleAssert.NET20\TypeHelper.fs" />
+    <Compile Include="..\Persimmon.MuscleAssert.NET20\DiscriminatedUnion.fs" />
+    <Compile Include="..\Persimmon.MuscleAssert.NET20\Tuple.fs" />
+    <Compile Include="..\Persimmon.MuscleAssert.NET20\Visitor.fs" />
+    <Compile Include="..\Persimmon.MuscleAssert.NET20\Assertions.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Persimmon" Version="2.0.1" />
+    <PackageReference Include="FSharp.Object.Diff" Version="1.0.0" />
+    <PackageReference Include="Diff.Match.Patch" Version="2.0.1" />
+    <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
+  </ItemGroup>
+</Project>
