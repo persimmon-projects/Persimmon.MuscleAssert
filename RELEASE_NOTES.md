@@ -1,4 +1,7 @@
-### 0.8.0-beta1 October 16 2016
+### 1.0.0 April 7 2017
+* support .NET Core
+* support PCL(7, 78, 259)
+* dump obj type diff
 * support mutual recursion object [#5](https://github.com/persimmon-projects/Persimmon.MuscleAssert/issues/5)
 * fix to check UseNullAsTrueValue
 * fix display path(UseNullAsTrueValue)
