@@ -85,7 +85,7 @@ Target "AssemblyInfo" (fun _ ->
   !! "src/**/*.??proj"
   |> Seq.choose (fun p ->
     let name = Path.GetFileNameWithoutExtension(p)
-    if name.EndsWith("NETCore") || name.EndsWith("NETCore") || name.EndsWith("NET45") then None
+    if name.EndsWith("NETCore") || name.EndsWith("NET40") || name.EndsWith("NET45") then None
     else getProjectDetails p |> Some
   )
   |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
