@@ -276,3 +276,20 @@ module Recursion =
       [""; ".FirstNode"; ".FirstNode.FirstNode"; ".FirstNode.LastNode"; ".FirstNode.Parent"; ".LastNode"; ".LastNode.FirstNode"; ".LastNode.LastNode"; ".LastNode.Parent"]
       |> List.collect (sprintf"%s.Value" >> value)
     test (a, b, expected)
+
+module Box =
+
+  [<CustomEquality; NoComparison>]
+  type A = {
+    A: obj
+    B: string
+  }
+  with
+    override x.Equals(y: obj) =
+      match y with
+      | :? A as y -> x.A = y.A
+      | _ -> false
+    override x.GetHashCode() = hash x.A
+
+  let ``dump diff obj`` =
+    test ({ A = 2; B = null }, { A = "2"; B = "x" }, [".A"; expected 2; actual "2"; ".B"; expected "null"; actual "x"])
