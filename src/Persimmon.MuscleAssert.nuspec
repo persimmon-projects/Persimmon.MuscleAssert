@@ -62,7 +62,7 @@
     <file src="Persimmon.MuscleAssert.NET20/Persimmon.MuscleAssert.XML" target="lib/net20" />
     <file src="../src/Persimmon.MuscleAssert.NET40/bin/Release/net40/Persimmon.MuscleAssert.dll" target="lib/net40" />
     <file src="../src/Persimmon.MuscleAssert.NET45/bin/Release/net45/Persimmon.MuscleAssert.dll" target="lib/net45" />
-    <file src="../src/Persimmon.MuscleAssert.NETCore/bin/Release/netstandard1.6/Persimmon.MuscleAssert.dll" target="lib/netstandard16" />
+    <file src="../src/Persimmon.MuscleAssert.NETCore/bin/Release/netstandard1.6/Persimmon.MuscleAssert.dll" target="lib/netstandard1.6" />
     <file src="Persimmon.MuscleAssert.Portable7/Persimmon.MuscleAssert.dll" target="lib/portable45-net45+win8" />
     <file src="Persimmon.MuscleAssert.Portable7/Persimmon.MuscleAssert.XML" target="lib/portable45-net45+win8" />
     <file src="Persimmon.MuscleAssert.Portable78/Persimmon.MuscleAssert.dll" target="lib/portable45-net45+win8+wp8" />
