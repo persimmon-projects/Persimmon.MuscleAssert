@@ -1,3 +1,6 @@
+### 1.0.1 April 10 2017
+* disable caller line number [#7](https://github.com/persimmon-projects/Persimmon.MuscleAssert/issues/7)
+
 ### 1.0.0 April 7 2017
 * support .NET Core
 * support PCL(7, 78, 259)

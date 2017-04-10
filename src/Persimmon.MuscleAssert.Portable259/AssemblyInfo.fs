@@ -6,17 +6,17 @@ open System.Runtime.CompilerServices
 [<assembly: AssemblyTitleAttribute("Persimmon.MuscleAssert")>]
 [<assembly: AssemblyProductAttribute("Persimmon.MuscleAssert")>]
 [<assembly: AssemblyDescriptionAttribute("")>]
-[<assembly: AssemblyVersionAttribute("1.0.0")>]
-[<assembly: AssemblyFileVersionAttribute("1.0.0")>]
+[<assembly: AssemblyVersionAttribute("1.0.1")>]
+[<assembly: AssemblyFileVersionAttribute("1.0.1")>]
 [<assembly: InternalsVisibleToAttribute("Persimmon.MuscleAssert.Tests")>]
-[<assembly: AssemblyInformationalVersionAttribute("1.0.0")>]
+[<assembly: AssemblyInformationalVersionAttribute("1.0.1")>]
 do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyTitle = "Persimmon.MuscleAssert"
     let [<Literal>] AssemblyProduct = "Persimmon.MuscleAssert"
     let [<Literal>] AssemblyDescription = ""
-    let [<Literal>] AssemblyVersion = "1.0.0"
-    let [<Literal>] AssemblyFileVersion = "1.0.0"
+    let [<Literal>] AssemblyVersion = "1.0.1"
+    let [<Literal>] AssemblyFileVersion = "1.0.1"
     let [<Literal>] InternalsVisibleTo = "Persimmon.MuscleAssert.Tests"
-    let [<Literal>] AssemblyInformationalVersion = "1.0.0"
+    let [<Literal>] AssemblyInformationalVersion = "1.0.1"
