@@ -75,8 +75,8 @@ module MuscleAssert =
 
   let assertEquals (expected: 'T) (actual: 'T) =
     MuscleAssert(defaultDifferBuilder.Build(), DefaultAssertionVisitor("expected", expected, "actual", actual))
-      .Equal(expected, actual)
+      .Equal(expected, actual, ?line = None)
 
   let (===) left right =
     MuscleAssert(defaultDifferBuilder.Build(), DefaultAssertionVisitor("left", left, "right", right))
-      .Equal(left, right)
+      .Equal(left, right, ?line = None)
