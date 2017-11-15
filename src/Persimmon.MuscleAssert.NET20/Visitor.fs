@@ -4,11 +4,9 @@ open System
 #if PCL || NETSTANDARD
 open System.Reflection
 #endif
-open System.Collections
 open System.Collections.Generic
 open FSharp.Reflection
 open FSharp.Object.Diff
-open FSharp.Object.Diff.Dictionary
 open DiffMatchPatch
 
 type private Difference = {
