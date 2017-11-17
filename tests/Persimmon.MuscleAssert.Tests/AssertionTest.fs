@@ -1,4 +1,4 @@
-﻿module Persimmon.MuscleAssert.Tests.AssertTest
+﻿module Persimmon.MuscleAssert.Tests.AssertionTest
 
 open System
 open System.Collections.Generic
@@ -39,11 +39,13 @@ module Helper =
   let test (expected, actual, message) = test {
     let cause =
       message
-      |> String.concat Environment.NewLine
+      |> String.concat "\n"
       |> Violated
     let msg = NotPassed(None, cause)
     do!
-      MuscleAssert.assertEquals expected actual
+      match MuscleAssert.assertEquals expected actual with
+      | NotPassed(l, Violated cause) -> NotPassed(l, Violated(cause.Replace("\r\n", "\n")))
+      | v -> v
       |> assertEquals msg
   }
 

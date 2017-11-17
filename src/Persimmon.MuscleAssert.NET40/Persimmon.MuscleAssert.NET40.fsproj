@@ -1,4 +1,4 @@
-﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net40</TargetFramework>
     <AssemblyName>Persimmon.MuscleAssert</AssemblyName>
@@ -14,9 +14,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="4.0.0.1" />
-    <PackageReference Include="Persimmon" Version="2.0.1" />
+    <PackageReference Include="Persimmon" Version="3.1.1" />
     <PackageReference Include="FSharp.Object.Diff" Version="1.0.0" />
     <PackageReference Include="Diff.Match.Patch" Version="2.0.1" />
-    <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
   </ItemGroup>
 </Project>
