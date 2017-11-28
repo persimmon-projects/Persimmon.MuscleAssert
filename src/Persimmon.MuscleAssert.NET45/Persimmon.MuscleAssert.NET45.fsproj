@@ -17,6 +17,6 @@
     <PackageReference Include="FSharp.Core" Version="4.0.0.1" />
     <PackageReference Include="Persimmon" Version="3.1.1" />
     <PackageReference Include="FSharp.Object.Diff" Version="1.0.0" />
-    <PackageReference Include="Diff.Match.Patch" Version="2.0.1" />
+    <PackageReference Include="Diff.Match.Patch" Version="2.0.2" />
   </ItemGroup>
 </Project>
