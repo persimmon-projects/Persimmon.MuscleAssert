@@ -1,3 +1,6 @@
+### 2.0.0 November 29 2017
+* update Dependencies(Persimmon 3.1.1, Diff.Match.Patch 2.0.2)
+
 ### 1.0.1 April 10 2017
 * disable caller line number [#7](https://github.com/persimmon-projects/Persimmon.MuscleAssert/issues/7)
 

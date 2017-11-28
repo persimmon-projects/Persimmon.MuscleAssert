@@ -14,13 +14,13 @@
     <tags>F# fsharp testing</tags>
     <dependencies>
       <group targetFramework=".NETFramework2.0">
-        <dependency id="FSharp.Core" version="3.1.2.5" />
+        <dependency id="FSharp.Core" version="[3.1.2.5, 4.2)" />
         <dependency id="Persimmon" version="3.1.1" />
         <dependency id="Diff.Match.Patch" version="2.0.1" />
         <dependency id="FSharp.Object.Diff" version="1.0.0" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="FSharp.Core" version="4.0.0.1" />
+        <dependency id="FSharp.Core" version="[4.0.0.1, 4.2)" />
         <dependency id="Persimmon" version="3.1.1" />
         <dependency id="Diff.Match.Patch" version="2.0.2" />
         <dependency id="FSharp.Object.Diff" version="1.0.0" />
@@ -32,19 +32,19 @@
         <dependency id="FSharp.Object.Diff" version="1.0.0" />
       </group>
       <group targetFramework="portable45-net45+win8">
-        <dependency id="FSharp.Core" version="4.0.0.1" />
+        <dependency id="FSharp.Core" version="[4.0.0.1, 4.2)" />
         <dependency id="Persimmon" version="3.1.1" />
         <dependency id="Diff.Match.Patch" version="2.0.2" />
         <dependency id="FSharp.Object.Diff" version="1.0.0" />
       </group>
       <group targetFramework="portable45-net45+win8+wp8">
-        <dependency id="FSharp.Core" version="4.0.0.1" />
+        <dependency id="FSharp.Core" version="[4.0.0.1, 4.2)" />
         <dependency id="Persimmon" version="3.1.1" />
         <dependency id="Diff.Match.Patch" version="2.0.2" />
         <dependency id="FSharp.Object.Diff" version="1.0.0" />
       </group>
       <group targetFramework="portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10">
-        <dependency id="FSharp.Core" version="4.0.0.1" />
+        <dependency id="FSharp.Core" version="[4.0.0.1, 4.2)" />
         <dependency id="Persimmon" version="3.1.1" />
         <dependency id="Diff.Match.Patch" version="2.0.2" />
         <dependency id="FSharp.Object.Diff" version="1.0.0" />
