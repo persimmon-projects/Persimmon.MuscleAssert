@@ -1,3 +1,7 @@
+### 3.0.0 June 20 2018
+* drop support net20, net35, net40 and pcl*
+* update Dependencies(Persimmon 4.0.1, Diff.Match.Patch 2.1.0)
+
 ### 2.0.0 November 29 2017
 * update Dependencies(Persimmon 3.1.1, Diff.Match.Patch 2.0.2)
 
