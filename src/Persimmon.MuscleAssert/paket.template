@@ -1,0 +1,33 @@
+type project
+owners
+    bleis-tift, Gab-km, pocketberserker
+authors
+    bleis-tift, Gab-km, pocketberserker
+projectUrl
+    https://github.com/persimmon-projects/Persimmon.MuscleAssert
+licenseUrl
+    https://github.com/persimmon-projects/Persimmon.MuscleAssert/blob/master/LICENSE
+iconUrl
+    https://raw.githubusercontent.com/persimmon-projects/Persimmon.Materials/master/StandardIcons/persimmon_128.png
+requireLicenseAcceptance
+    false
+tags
+    F#, fsharp, testing
+description
+  Persimmon.MuscleAssert provide custom assertions for Persimmon.
+dependencies
+  framework: net45
+    FSharp.Core >= LOCKEDVERSION-Legacy
+    Persimmon >= LOCKEDVERSION-Legacy
+    FSharp.Object.Diff >= LOCKEDVERSION-Legacy
+    Diff.Match.Patch >= LOCKEDVERSION-Legacy
+  framework: netstandard1.6
+	FSharp.Core >= LOCKEDVERSION
+    Persimmon >= LOCKEDVERSION
+    FSharp.Object.Diff >= LOCKEDVERSION
+    Diff.Match.Patch >= LOCKEDVERSION
+files
+    bin/Release/net45/Persimmon.MuscleAssert.dll ==> lib/net45
+    bin/Release/net45/Persimmon.MuscleAssert.xml ==> lib/net45
+    bin/Release/netstandard1.6/Persimmon.MuscleAssert.dll ==> lib/netstandard1.6
+    bin/Release/netstandard1.6/Persimmon.MuscleAssert.xml ==> lib/netstandard1.6

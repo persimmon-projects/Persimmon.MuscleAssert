@@ -145,7 +145,7 @@ type DiscriminatedUnionDiffer(
 
   let useNullAsTrueValue (instances: Instances) =
     instances.Type
-#if PCL || NETSTANDARD
+#if NETSTANDARD
        .GetTypeInfo().GetCustomAttributes(false)
     |> Seq.exists (function
 #else

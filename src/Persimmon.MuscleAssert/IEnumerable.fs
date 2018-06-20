@@ -1,7 +1,7 @@
 ﻿namespace Persimmon
 
 open System
-#if PCL || NETSTANDARD
+#if NETSTANDARD
 open System.Reflection
 #endif
 open System.Collections
@@ -18,14 +18,14 @@ module internal IEnumerable =
     let private runtimeHelpers = Seq.empty<int>.GetType().DeclaringType
 
     let isSeq (t: Type) =
-#if PCL || NETSTANDARD
+#if NETSTANDARD
       let info = t.GetTypeInfo()
       if info.IsGenericType then
 #else
       if t.IsGenericType then
 #endif
         let ps =
-#if PCL || NETSTANDARD
+#if NETSTANDARD
           info.GenericTypeArguments
 #else
           t.GetGenericArguments()
@@ -33,7 +33,7 @@ module internal IEnumerable =
         if Array.length ps = 1 then
           let ie =
             typedefof<_ seq>
-#if PCL || NETSTANDARD
+#if NETSTANDARD
               .GetTypeInfo()
 #endif
               .MakeGenericType(ps)
@@ -41,7 +41,7 @@ module internal IEnumerable =
           // System.Type objects of Seq.empty and some generated seq do not equal typeof<'T seq>
           else
             ie
-#if PCL || NETSTANDARD
+#if NETSTANDARD
               .GetTypeInfo()
               .IsAssignableFrom(info)
 #else
@@ -53,7 +53,7 @@ module internal IEnumerable =
 
   let getEnumerator e =
     enumType
-#if PCL || NETSTANDARD
+#if NETSTANDARD
       .GetTypeInfo()
       .GetDeclaredMethod("GetEnumerator")
 #else

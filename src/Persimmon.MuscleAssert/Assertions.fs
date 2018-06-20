@@ -1,9 +1,7 @@
 ﻿namespace Persimmon
 
 open System
-#if NET45 || NETSTANDARD
 open System.Runtime.CompilerServices
-#endif
 open Persimmon
 open FSharp.Object.Diff
 open Filter

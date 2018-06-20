@@ -1,17 +1,28 @@
+framework: netstandard1.6
 source https://api.nuget.org/v3/index.json
 
-nuget FSharp.Core = 4.1.18
-nuget Persimmon >= 3.1.1
-nuget FSharp.Object.Diff >= 1.0.0
-nuget Diff.Match.Patch >= 2.0.2
+nuget FSharp.Core >= 4.3.4 lowest_matching:true
+nuget Persimmon >= 4.0.1 lowest_matching:true
+nuget FSharp.Object.Diff >= 1.0.0 lowest_matching:true
+nuget Diff.Match.Patch >= 2.1.0 lowest_matching:true
 
 group Build
   source https://api.nuget.org/v3/index.json
 
-  nuget FAKE
+  nuget FAKE < 5.0
+  nuget FAKE.Lib < 5.0
   nuget Nuget.CommandLine
   nuget SourceLink.Fake
   nuget FAKE.Persimmon
+  nuget Octokit = 0.29
 
-  github fsharp/FAKE modules/Octokit/Octokit.fsx
+  github fsharp/FAKE:2bd41546d8549654ad4d4b5639425537afe5e1f7 modules/Octokit/Octokit.fsx
 
+group Legacy
+  framework: net45
+  source https://api.nuget.org/v3/index.json
+
+  nuget FSharp.Core >= 4.0.0.1 lowest_matching:true
+  nuget Persimmon >= 4.0.1 lowest_matching:true
+  nuget FSharp.Object.Diff >= 1.0.0 lowest_matching:true
+  nuget Diff.Match.Patch >= 2.1.0 lowest_matching:true
