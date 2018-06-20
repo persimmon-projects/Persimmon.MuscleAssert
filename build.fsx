@@ -14,9 +14,6 @@ open SourceLink
 
 let configuration = getBuildParamOrDefault "configuration" "Release"
 
-let isDotnetInstalled = DotNetCli.isInstalled()
-let isTravisCI = (environVarOrDefault "TRAVIS" "") = "true"
-
 let project = "Persimmon.MuscleAssert"
 
 let outDir = "bin"
@@ -39,7 +36,7 @@ let tags = "F#, fsharp, testing"
 let solutionFile  = "Persimmon.MuscleAssert.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = "tests/**/bin" @@ configuration @@ "*Tests*.dll"
+let testAssemblies = "tests/**/bin" @@ configuration @@ "net*" @@ "*Tests*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -66,7 +63,7 @@ let (|Fsproj|Csproj|Vbproj|) (projFileName:string) =
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
   let getAssemblyInfoAttributes projectName =
-    [ Attribute.Title (projectName |> replace ".NET20" "" |> replace ".Portable259" "" |> replace ".Portable78" "" |> replace ".Portable7" "")
+    [ Attribute.Title projectName
       Attribute.Product project
       Attribute.Description summary
       Attribute.Version release.AssemblyVersion
@@ -83,11 +80,7 @@ Target "AssemblyInfo" (fun _ ->
     )
 
   !! "src/**/*.??proj"
-  |> Seq.choose (fun p ->
-    let name = Path.GetFileNameWithoutExtension(p)
-    if name.EndsWith("NETCore") || name.EndsWith("NET40") || name.EndsWith("NET45") then None
-    else getProjectDetails p |> Some
-  )
+  |> Seq.map getProjectDetails
   |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
     match projFileName with
     | Fsproj -> CreateFSharpAssemblyInfo (("src" @@ folderName) @@ "AssemblyInfo.fs") attributes
@@ -122,59 +115,16 @@ Target "Clean" (fun _ ->
 // Build library & test project
 
 Target "Build" (fun _ ->
-  !! solutionFile
-  |> MSBuild "" "Rebuild" [ ("Configuration", configuration) ]
-  |> ignore
-)
-
-Target "Build.NETCore" (fun _ ->
-
-  let args = [ sprintf "/p:Version=%s" release.NugetVersion ]
-
-  let net40Project = "src/Persimmon.MuscleAssert.NET40/Persimmon.MuscleAssert.NET40.fsproj"
-  let net45Project = "src/Persimmon.MuscleAssert.NET45/Persimmon.MuscleAssert.NET45.fsproj"
-  let netCoreProject = "src/Persimmon.MuscleAssert.NETCore/Persimmon.MuscleAssert.NETCore.fsproj"
-
-  if not isTravisCI then
-
-    DotNetCli.Restore (fun p ->
-      { p with
-          Project = net40Project
-      }
-    )
-    DotNetCli.Build (fun p ->
-      { p with
-          Project = net40Project
-          Configuration = configuration
-          AdditionalArgs = args
-      }
-    )
-
-    DotNetCli.Restore (fun p ->
-      { p with
-          Project = net45Project
-      }
-    )
-    DotNetCli.Build (fun p ->
-      { p with
-          Project = net45Project
-          Configuration = configuration
-          AdditionalArgs = args
-      }
-    )
 
   DotNetCli.Restore (fun p ->
     { p with
-        Project = netCoreProject
+        Project = solutionFile
     }
   )
-  DotNetCli.Build (fun p ->
-    { p with
-        Project = netCoreProject
-        Configuration = configuration
-        AdditionalArgs = args
-    }
-  )
+
+  !! solutionFile
+  |> MSBuild "" "Rebuild" [ ("Configuration", configuration) ]
+  |> ignore
 )
 
 // --------------------------------------------------------------------------------------
@@ -182,10 +132,6 @@ Target "Build.NETCore" (fun _ ->
 Target "RunTests" (fun _ ->
   !! testAssemblies
   |> Persimmon id
-)
-
-Target "RunTests.NETCore" (fun _ ->
-  ()
 )
 
 #if MONO
@@ -210,15 +156,11 @@ Target "SourceLink" (fun _ ->
 // Build a NuGet package
 
 Target "NuGet" (fun _ ->
-  NuGet (fun p ->
-    {
-      p with
+  Paket.Pack(fun p ->
+    { p with
         OutputPath = outDir
-        WorkingDir = outDir
         Version = release.NugetVersion
-        ReleaseNotes = toLines release.Notes
-    }
-  ) "src/Persimmon.MuscleAssert.nuspec"
+        ReleaseNotes = toLines release.Notes})
 )
 
 Target "PublishNuget" (fun _ ->
@@ -246,23 +188,14 @@ Target "Release" (fun _ ->
   |> Async.RunSynchronously
 )
 
-Target "BuildPackage" DoNothing
-
-Target "NETCore" DoNothing
-
 Target "All" DoNothing
 
 "Clean"
   ==> "AssemblyInfo"
-  =?> ("Build", not isTravisCI)
-  =?> ("CopyBinaries", not isTravisCI)
-  =?> ("RunTests", not isTravisCI)
-  =?> ("NETCore", isDotnetInstalled)
+  ==> "Build"
+  ==> "CopyBinaries"
+  ==> "RunTests"
   ==> "All"
-
-"Build.NETCore"
-  ==> "RunTests.NETCore"
-  ==> "NETCore"
 
 "All"
 #if MONO
