@@ -6,9 +6,10 @@ matrix:
       dist: trusty
       sudo: required
       mono: latest
-      dotnet: 2.0.0
+      dotnet: 2.1.4
 
 before_script:
   - chmod +x ./build.sh
 script:
+  - dotnet --info
   - ./build.sh
