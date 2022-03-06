@@ -1,20 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
+    <Version>3.0.0</Version>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyName>Persimmon.MuscleAssert</AssemblyName>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+    <authors>bleis-tift Gab-km pocketberserker</authors>
+    <owners>bleis-tift Gab-km pocketberserker</owners>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <licenseUrl>https://github.com/persimmon-projects/Persimmon.MuscleAssert/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/persimmon-projects/Persimmon.MuscleAssert</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Persimmon.MuscleAssert provide custom assertions for Persimmon.</description>
+    <tags>F# fsharp testing</tags>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="CommonAssemblyInfo.fs" />
     <Compile Include="IEnumerable.fs" />
     <Compile Include="TypeHelper.fs" />
     <Compile Include="DiscriminatedUnion.fs" />
-    <Compile Include="Tuple.fs" />
     <Compile Include="Visitor.fs" />
     <Compile Include="Assertions.fs" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" Version="5.0.0" />
+    <PackageReference Include="Persimmon" Version="5.0.1" />
+    <PackageReference Include="Diff.Match.Patch" Version="3.0.1" />
+    <PackageReference Include="FSharp.Object.Diff" Version="2.1.0" />
+  </ItemGroup>
 </Project>
