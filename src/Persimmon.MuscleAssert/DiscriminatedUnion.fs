@@ -43,8 +43,9 @@ with
     else
       let case, _ = FSharpValue.GetUnionFields(target, this.Type)
       DU.caseName this.Type case
+  member __.ElementSelector = UseNullAsTrueValueElementSelector.Instance
   interface TypeAwareAccessor with
-    member __.ElementSelector = UseNullAsTrueValueElementSelector.Instance
+    member this.ElementSelector = this.ElementSelector
     member this.Get(target) =this.Get(target) |> box
     member __.Set(_, _) = ()
     member this.Type = this.Type
@@ -71,6 +72,19 @@ type UnionCaseFieldAccessor =
   | UnionCaseTagAccessor of PropertyInfo
   | UnionCaseItemAccessor of PropertyAwareAccessor
 with
+  member this.Get(target: obj) =
+    match target, this with
+    | null, _ -> null
+    | _, UnionCaseTagAccessor info ->
+      let t = info.DeclaringType
+      let tag =
+        try
+          info.GetValue(target, [||]) |> unbox<int>
+        with e ->
+          raise <| PropertyReadException(info.Name, target.GetType(), e)
+      FSharpType.GetUnionCases(t)
+      |> Array.pick (fun x -> if x.Tag = tag then Some(box (DU.caseName t x)) else None)
+    | _, UnionCaseItemAccessor accessor -> accessor.Get(target)
   interface PropertyAwareAccessor with
     member this.Type =
       match this with
@@ -85,20 +99,7 @@ with
     member __.Set(_, _) = ()
     member __.Unset(_) = ()
     member __.CategoriesFromAttribute = Set.empty
-    member this.Get(target) =
-      if target = null then null
-      else
-        match this with
-        | UnionCaseTagAccessor info ->
-          let t = info.DeclaringType
-          let tag =
-            try
-              info.GetValue(target, [||]) |> unbox<int>
-            with e ->
-              raise <| PropertyReadException(info.Name, target.GetType(), e)
-          FSharpType.GetUnionCases(t)
-          |> Array.pick (fun x -> if x.Tag = tag then Some(box (DU.caseName t x)) else None)
-        | UnionCaseItemAccessor accessor -> accessor.Get(target)
+    member this.Get(target) = this.Get(target)
     member this.ElementSelector =
       match this with
       | UnionCaseTagAccessor info ->
@@ -130,28 +131,30 @@ type DiscriminatedUnionDiffer(
       node.AddChild(caseNode)
 
   let compareDUTagProperty (node: DiffNode) (instances: Instances) =
-    let tag =
-      instances.Type
-#if PCL || NETSTANDARD
-        .GetTypeInfo()
-        .GetDeclaredProperty(DU.Tag)
-#else
-        .GetProperty(DU.Tag)
-#endif
-    let accessor = UnionCaseTagAccessor(tag)
-    let propertyNode = differDispatcher.Dispatch(node, instances, accessor)
-    if isReturnableResolver.IsReturnable(propertyNode) then
-      node.AddChild(propertyNode)
+    let inner tag =
+      let accessor = UnionCaseTagAccessor(tag)
+      let propertyNode = differDispatcher.Dispatch(node, instances, accessor)
+      if isReturnableResolver.IsReturnable(propertyNode) then
+        node.AddChild(propertyNode)
+
+    if FSharpType.IsUnion(instances.Type) then
+      let t = instances.Type.GetTypeInfo()
+      let tag = t.GetDeclaredProperty(DU.Tag)
+      if tag <> null then inner tag
+      else
+        let superType = t.DeclaringType.GetTypeInfo()
+        let tag = superType.GetDeclaredProperty(DU.Tag)
+        if tag <> null then
+          // specialize
+          superType
+            .MakeGenericType(instances.Type.GetGenericArguments())
+            .GetTypeInfo()
+            .GetDeclaredProperty(DU.Tag)
+          |> inner
 
   let useNullAsTrueValue (instances: Instances) =
-    instances.Type
-#if NETSTANDARD
-       .GetTypeInfo().GetCustomAttributes(false)
+    instances.Type.GetTypeInfo().GetCustomAttributes(false)
     |> Seq.exists (function
-#else
-      .GetCustomAttributes(false)
-    |> Array.exists (function
-#endif
     | :? CompilationRepresentationAttribute as a ->
       a.Flags = CompilationRepresentationFlags.UseNullAsTrueValue
     | _ -> false
@@ -164,9 +167,9 @@ type DiscriminatedUnionDiffer(
         match instances.SourceAccessor with
         | :? CollectionItemAccessor as accessor ->
           match accessor.TryGet(f parent) with
-          | Choice1Of2 None -> NoItem
-          | Choice1Of2(Some _) -> HasItem
-          | Choice2Of2 e -> Error e
+          | Ok None -> NoItem
+          | Ok(Some _) -> HasItem
+          | Result.Error e -> Error e
         | _ -> inner parent
       | None -> NotCollection
     inner instances
@@ -224,7 +227,5 @@ type DiscriminatedUnionDiffer(
     node
 
   interface Differ with
-
     member this.Accepts(typ: Type) = this.Accepts(typ)
-
     member this.Compare(parentNode, instances) = this.Compare(parentNode, instances)

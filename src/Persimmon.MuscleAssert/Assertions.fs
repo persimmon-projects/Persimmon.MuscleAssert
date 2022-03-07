@@ -4,7 +4,6 @@ open System
 open System.Runtime.CompilerServices
 open Persimmon
 open FSharp.Object.Diff
-open Filter
 
 [<NoEquality; NoComparison; Sealed>]
 type MuscleAssert(differ: ObjectDiffer, visitor: AssertionVisitor) =
@@ -35,26 +34,21 @@ type MuscleAssert(differ: ObjectDiffer, visitor: AssertionVisitor) =
         .And()
         .Inclusion
         .Exclude()
-        .PropertyNameOfType(typ, filteredTypeProperties)
+        .PropertyNameOfType(Filter.typ, Filter.filteredTypeProperties)
         .And()
         .Filtering
         .ReturnNodesWithState(Ignored)
         .And()
     // System.RuntimeType does not exist mono.
-    if typ <> runtimeType then
+    if Filter.typ <> Filter.runtimeType then
       builder.Inclusion
         .Exclude()
-        .PropertyNameOfType(runtimeType, filteredRuntimeTypeProperties) 
+        .PropertyNameOfType(Filter.runtimeType, Filter.filteredRuntimeTypeProperties)
       |> ignore
     builder
       .Differs
       .Register({ new DifferFactory with
         member __.CreateDiffer(_, _) = IEnumerableDiffer :> Differ
-      })
-      .Differs
-      .Register({ new DifferFactory with
-        member __.CreateDiffer(dispatcher, service) =
-          TupleDiffer(dispatcher, service, service, service, builder.Introspection :?> TypeInfoResolver) :> Differ
       })
       .Differs
       .Register({ new DifferFactory with

@@ -273,11 +273,7 @@ module Recursion =
           1
         )
       )
-    let value path = [path; expected 0; actual 1; ""; "@@ -1 +1 @@"; "-0"; "+1"; ""]
-    let expected =
-      [""; ".FirstNode"; ".FirstNode.FirstNode"; ".FirstNode.LastNode"; ".FirstNode.Parent"; ".LastNode"; ".LastNode.FirstNode"; ".LastNode.LastNode"; ".LastNode.Parent"]
-      |> List.collect (sprintf"%s.Value" >> value)
-    test (a, b, expected)
+    test (a, b, [".Value"; expected 0; actual 1; ""; "@@ -1 +1 @@"; "-0"; "+1"; ""])
 
 module Box =
 

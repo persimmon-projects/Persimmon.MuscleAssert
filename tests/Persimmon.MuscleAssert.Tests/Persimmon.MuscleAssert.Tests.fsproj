@@ -1,20 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Persimmon.MuscleAssert.Tests</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net60</TargetFramework>
     <IsPackable>false</IsPackable>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="paket.references" />
-    <Content Include="app.config" />
     <Compile Include="IEnumerableTest.fs" />
+    <Compile Include="DiscriminatedUnionTest.fs" />
     <Compile Include="AssertionTest.fs" />
     <Compile Include="IgnoredPropertyTest.fs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0" />
+    <PackageReference Include="Persimmon.TestAdapter" Version="0.12.0-beta3" />
     <ProjectReference Include="../../src/Persimmon.MuscleAssert/Persimmon.MuscleAssert.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

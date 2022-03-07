@@ -1,56 +1,36 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
-MinimumVisualStudioVersion = 15.0.26124.0
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9E525E04-8B0D-447C-9BD0-CD31871BAA7C}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BD34B62C-1D9B-4C7D-BEA7-A11F04A7F0FB}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.MuscleAssert", "src\Persimmon.MuscleAssert\Persimmon.MuscleAssert.fsproj", "{FA54C649-A708-464C-BBB5-80A330303AE1}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.MuscleAssert", "src\Persimmon.MuscleAssert\Persimmon.MuscleAssert.fsproj", "{971C6186-9424-4342-886B-77FFF3CC098F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C022B514-3BD6-4C28-9D0F-F1116FD598DB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{56398743-0C50-4BC8-A9F7-E867714BB8A7}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.MuscleAssert.Tests", "tests\Persimmon.MuscleAssert.Tests\Persimmon.MuscleAssert.Tests.fsproj", "{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.MuscleAssert.Tests", "tests\Persimmon.MuscleAssert.Tests\Persimmon.MuscleAssert.Tests.fsproj", "{CE301A17-9CFF-4766-88F7-31DCEC3E0623}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Debug|x64.ActiveCfg = Debug|x64
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Debug|x64.Build.0 = Debug|x64
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Debug|x86.ActiveCfg = Debug|x86
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Debug|x86.Build.0 = Debug|x86
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Release|x64.ActiveCfg = Release|x64
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Release|x64.Build.0 = Release|x64
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Release|x86.ActiveCfg = Release|x86
-		{FA54C649-A708-464C-BBB5-80A330303AE1}.Release|x86.Build.0 = Release|x86
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Debug|x64.ActiveCfg = Debug|x64
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Debug|x64.Build.0 = Debug|x64
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Debug|x86.ActiveCfg = Debug|x86
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Debug|x86.Build.0 = Debug|x86
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Release|Any CPU.Build.0 = Release|Any CPU
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Release|x64.ActiveCfg = Release|x64
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Release|x64.Build.0 = Release|x64
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Release|x86.ActiveCfg = Release|x86
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79}.Release|x86.Build.0 = Release|x86
+		{971C6186-9424-4342-886B-77FFF3CC098F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{971C6186-9424-4342-886B-77FFF3CC098F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{971C6186-9424-4342-886B-77FFF3CC098F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{971C6186-9424-4342-886B-77FFF3CC098F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE301A17-9CFF-4766-88F7-31DCEC3E0623}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE301A17-9CFF-4766-88F7-31DCEC3E0623}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE301A17-9CFF-4766-88F7-31DCEC3E0623}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE301A17-9CFF-4766-88F7-31DCEC3E0623}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{FA54C649-A708-464C-BBB5-80A330303AE1} = {9E525E04-8B0D-447C-9BD0-CD31871BAA7C}
-		{76DBE512-A5AE-4E08-9D0B-4C6EA19EFD79} = {C022B514-3BD6-4C28-9D0F-F1116FD598DB}
+		{971C6186-9424-4342-886B-77FFF3CC098F} = {BD34B62C-1D9B-4C7D-BEA7-A11F04A7F0FB}
+		{CE301A17-9CFF-4766-88F7-31DCEC3E0623} = {56398743-0C50-4BC8-A9F7-E867714BB8A7}
 	EndGlobalSection
 EndGlobal
