@@ -1,3 +1,7 @@
+### 4.0.0 March 7 2022
+* support netstandard2.0 or higher
+* drop net45 and netstandard1.6
+
 ### 3.0.0 June 20 2018
 * drop support net20, net35, net40 and pcl*
 * update Dependencies(Persimmon 4.0.1, Diff.Match.Patch 2.1.0)
