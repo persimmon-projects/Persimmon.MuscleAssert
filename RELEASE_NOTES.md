@@ -1,3 +1,6 @@
+### 4.0.1 March 10 2022
+- fix to get non generic DU tag in collection
+
 ### 4.0.0 March 7 2022
 * support netstandard2.0 or higher
 * drop net45 and netstandard1.6
