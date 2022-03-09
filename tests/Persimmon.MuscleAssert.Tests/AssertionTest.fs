@@ -207,6 +207,7 @@ module Nested =
       ([A; A], [A; C], [".[1]"; expected "TestDU.A"; actual "TestDU.C"])
       ([A], [B { X = []; Y = 2 }], [".[0]"; expected "TestDU.A"; actual "TestDU.B"])
       ([B { X = []; Y = 1 }], [B { X = []; Y = 2 }], [".[0].Y"; expected 1; actual 2])
+      ([D(1, "")], [], [".[0]"; expected "TestDU.D"])
     ]
     run test
   }

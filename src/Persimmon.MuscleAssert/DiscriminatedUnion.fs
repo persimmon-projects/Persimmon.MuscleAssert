@@ -145,12 +145,14 @@ type DiscriminatedUnionDiffer(
         let superType = t.DeclaringType.GetTypeInfo()
         let tag = superType.GetDeclaredProperty(DU.Tag)
         if tag <> null then
-          // specialize
-          superType
-            .MakeGenericType(instances.Type.GetGenericArguments())
-            .GetTypeInfo()
-            .GetDeclaredProperty(DU.Tag)
-          |> inner
+          if superType.IsGenericTypeDefinition then
+            // specialize
+            superType
+              .MakeGenericType(instances.Type.GetGenericArguments())
+              .GetTypeInfo()
+              .GetDeclaredProperty(DU.Tag)
+            |> inner
+          else inner tag
 
   let useNullAsTrueValue (instances: Instances) =
     instances.Type.GetTypeInfo().GetCustomAttributes(false)
